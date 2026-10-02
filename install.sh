@@ -22,24 +22,31 @@ set -euo pipefail
 
 REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$REPO_DIR/home"
-OLD_HOME="/home/sk"          # home of the machine this setup was captured from
+OLD_HOME="/home/sk" # home of the machine this setup was captured from
 
 DRY_RUN=0
 ASSUME_YES=0
 for arg in "$@"; do
   case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
-    --yes|-y)  ASSUME_YES=1 ;;
-    -h|--help)
-      sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
-      exit 0 ;;
-    *) echo "unknown option: $arg (try --help)"; exit 1 ;;
+  --dry-run) DRY_RUN=1 ;;
+  --yes | -y) ASSUME_YES=1 ;;
+  -h | --help)
+    sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+  *)
+    echo "unknown option: $arg (try --help)"
+    exit 1
+    ;;
   esac
 done
 
-info()  { printf '\n\033[1;32m==>\033[0m %s\n' "$*"; }
-warn()  { printf '\033[1;33mwarning:\033[0m %s\n' "$*"; }
-die()   { printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
+info() { printf '\n\033[1;32m==>\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33mwarning:\033[0m %s\n' "$*"; }
+die() {
+  printf '\033[1;31merror:\033[0m %s\n' "$*" >&2
+  exit 1
+}
 
 # run <cmd...>   -> print it in dry-run mode, otherwise execute it
 run() {
@@ -69,7 +76,11 @@ if [ "$DRY_RUN" = 0 ] && [ "$ASSUME_YES" = 0 ]; then
   printf '\nThis will install packages and copy/replace config files in %s\n' "$TARGET_HOME"
   printf 'Replaced files are backed up in %s/dotfiles-backup-<timestamp>\n' "$TARGET_HOME"
   read -r -p 'Continue? [y/N] ' answer
-  case "$answer" in y|Y|yes|YES) ;; *) echo "nothing was changed, exiting."; exit 0 ;; esac
+  case "$answer" in y | Y | yes | YES) ;; *)
+    echo "nothing was changed, exiting."
+    exit 0
+    ;;
+  esac
 fi
 
 # ---------------------------------------------------------------- 1. packages
@@ -177,7 +188,7 @@ fi
 
 # best effort: apply icon theme / light-dark mode (works when a session is running)
 if command -v gsettings >/dev/null 2>&1 && [ "$DRY_RUN" = 0 ]; then
-  variant="$(tr -d ' \t\r\n' < "$TARGET_HOME/.config/current_theme/icons.theme" 2>/dev/null || true)"
+  variant="$(tr -d ' \t\r\n' <"$TARGET_HOME/.config/current_theme/icons.theme" 2>/dev/null || true)"
   if [ -n "$variant" ]; then
     gsettings set org.gnome.desktop.interface icon-theme "$variant" 2>/dev/null || true
     if [ -f "$TARGET_HOME/.config/current_theme/light.mode" ]; then
@@ -187,6 +198,14 @@ if command -v gsettings >/dev/null 2>&1 && [ "$DRY_RUN" = 0 ]; then
     fi
   fi
 fi
+
+#make some needed dirs
+mkdir -p ~/Music/
+mkdir -p ~/Pictures/wallpapers
+mkdir -p ~/Pictures/screenshots
+mkdir -p ~/Videos/recordings
+
+rm -rf ~/.local/share/nvim
 
 # ---------------------------------------------------------------- done
 info "Done!"
