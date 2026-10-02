@@ -1,0 +1,32 @@
+@define-color foreground #C1C497;
+@define-color blue #509475;
+@define-color bg #111c18;
+@define-color background alpha(@bg, 1);
+
+/* for bar2 */
+window#waybar {
+  background-color: transparent;
+  border: none;
+}
+
+window#waybar>box {
+  background-color: alpha(@background, 0.90);
+  border: 2px solid alpha(@foreground, 0.6);
+  border-radius: 12px;
+  margin: 3px 200px 3px 200px;
+
+}
+
+.modules-left, .modules-right, tooltip {
+  border-radius: 8px;
+}
+
+#left1, #left2, #left3, #right1, #right2, #right3, #workspaces, #workspaces button, #workspaces button.active, #workspaces button.empty, #workspaces button.empty.active {
+  border-radius: 4px;
+}
+
+#custom-arch {
+  color: @blue;
+}
+
+

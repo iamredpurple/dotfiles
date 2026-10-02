@@ -1,0 +1,267 @@
+{
+  "exclusive": true,
+  "reload_style_on_change": true,
+  "position": "top",
+  "spacing": 0,
+  "height": 29,
+  "margin-top": 0,
+  "modules-left": [
+    //"group/left1",
+    //"group/left2",
+    "group/left3",
+  ],
+  "group/left3": {
+    "orientation": "inherit",
+    "modules": [
+    "hyprland/workspaces"
+    ]
+  },
+  "group/left2": {
+    "orientation": "inherit",
+    "modules": ["tray"]
+  },
+  "group/left1": {
+    "orientation": "inherit",
+    "modules": ["custom/weather"]
+  },
+
+
+  "modules-center": [
+    "custom/arch",
+    "custom/separator",
+    "clock",
+    "custom/separator",
+    "custom/weather",
+    "custom/recorder",
+  ],
+  "modules-right": [
+    //"group/right2",
+    "group/right1",
+  ],
+
+  "group/right1": {
+    "orientation": "inherit",
+    "modules": [
+      "network",
+      "bluetooth",
+      "pulseaudio#output",
+      "memory",
+      "cpu",
+      "battery",
+      "custom/power-menu"
+    ]
+  },
+ 
+  // "group/right2": {
+  //   "orientation": "inherit",
+  //   "modules": ["custom/media-now-playing"]
+  // },
+
+  "custom/separator": {
+  "format": "  ",
+  "tooltip": false,
+  },
+
+  "custom/weather": {
+    "format": "{}",
+    "interval": 900,
+    "exec": "~/.local/bin/weather.py",
+    "on-click": "~/.local/bin/weather.py",
+    "tooltip": true,
+    "return-type": "json"
+  },
+
+  "custom/power-menu": {
+    "on-click": "~/.local/bin/powermenu",
+    "tooltip-format": "Power Options",
+    "format": ""
+  },
+
+  "hyprland/workspaces": {
+  	"on-click": "activate",
+  	"format": "{icon} {windows}",
+  	"format-window-separator": " ",
+    "persistent-workspaces": {
+        "1": [],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": []
+    },
+    "ignore-workspaces": ["10"],
+    "tooltip": false,
+    "window-rewrite-default": "󱂬",
+  	"window-rewrite": {
+      "class<org.gnome.DiskUtility>": "󱛟",
+      "class<md.obsidian.Obsidian>": "",
+      "class<imv>": "",
+      "class<.*waydroid*.>": "",
+      "class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>": "",
+  		"class<Thorium|[Cc]hrome>": "",
+      "class<.*[Cc]hromium.*>": "",
+      "class<about-tui-float>": "",
+      "class<tui-float> title<impala>": "󱚾",
+      "class<tui-float> title<bluetui>": "󰂳",
+      "class<tui-float> title<.*rmpc.*>" : "󰝚",
+      "class<tui-float> title<wiremix>" : "󱡫",
+      "class<tui-float> title<btop>" : "󰓅",
+  		"class<tor browser>": "",
+  		"class<firefox-developer-edition>": "",
+  		"class<kitty|konsole>": "",
+  		"class<kitty-dropterm>": "",
+  		"class<com.mitchellh.ghostty>": "",
+  		"class<org.wezfurlong.wezterm>": "",
+  		"class<[Tt]hunderbird|[Tt]hunderbird-esr>": "",
+  		"class<eu.betterbird.Betterbird>": "",
+  		"class<discord|[Ww]ebcord|Vesktop>": "",
+      "class<.*calculat.*>": "",
+      "class<slack>": "",
+  		"class<mpv>": "",
+  		"class<celluloid|Zoom>": "",
+  		"class<firefox> title<.*Picture-in-Picture.*>": "",
+  		"class<chrome-youtube.com.*>": "",
+  		"class<chrome-cinejoy.to.*>": "",
+      "class<chrome-mail.google.com.*>": "󰊫",
+  		"class<vlc>": "󰕼",
+  		"class<[Ss]potify>": "",
+  		"class<VSCode|code-url-handler|code-oss|codium|codium-url-handler|VSCodium>": "󰨞",
+      "class<*.VSCode.*>": "󰨞",
+      "class<code>": "󰨞",
+      "class<dev.zed.Zed>": "󰵁",
+  		"class<codeblocks>": "󰅩",
+  		"class<mousepad>": "",
+  		"class<libreoffice-writer>": "",
+  		"class<libreoffice-startcenter>": " 󰏆",
+  		"class<libreoffice-calc>": "",
+      "class<org.gnome.Nautilus>": "",
+  		"class<kitty> title<.*nvim.*>": "",
+      "class<.*opencode.*>": "󰅨",
+  		"class<docker|[Ll]azydocker>": "",
+      "class<.*org.gnome.Evince.*>": "󰈙",
+      "class<.*[Pp]inta.*>": "",
+      "class<obs|com.obsproject.Studio>": "",
+      "class<polkit-gnome-authentication-agent-1>": "󰒃",
+  		"class<nwg-look>": "",
+  		"class<[Pp]avucontrol|org.pulseaudio.pavucontrol>": "󱡫",
+  		"class<thunar|nemo>": "󰝰",	
+      "class<Gparted>":"",
+  		"class<emulator>": "",
+  		"class<android-studio>": "",
+      "class<org.pipewire.Helvum>": "󰓃",
+      "class<org.localsend.localsend_app>":"",
+  	}
+  },
+  "custom/arch": {
+    "format": "<span>\uf303</span>",
+    "on-click": "~/.local/bin/about-system",
+    "tooltip-format": "About System"
+  },
+  "cpu": {
+    "interval": 5,
+    "format": " {usage:02}%",
+    "on-click": "~/.local/bin/launch-focus-tui btm"
+  },
+  "memory": {
+    "interval": 2,
+    "format": " {percentage:02}%", //
+    "on-click": "~/.local/bin/launch-focus-tui btop"
+  },
+  "clock": {
+    "format": "{:L%a, %I:%M %p}",
+    "format-alt": " {:L%b %d, %Y}",
+    "tooltip": false,
+  },
+  "network": {
+    "interface": "wlan0",
+    "format-icons": [
+      "󰤯",
+      "󰤟",
+      "󰤢",
+      "󰤥",
+      "󰤨"
+    ],
+    "format": "{icon}",
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤮",
+    "tooltip-format-wifi": "{essid} (⇣{bandwidthDownBytes})", //{frequency} GHz)",
+    "tooltip-format-ethernet": "Connected",
+    "tooltip-format-disconnected": "Disconnected",
+    "interval": 1,
+    "spacing": 1,
+    "on-click": "~/.local/bin/launch-focus-tui impala",
+  },
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "on-click": "~/.local/bin/powerprofiles",
+    "format-discharging": "{icon} {capacity}%",
+    "format-charging": "{icon} {capacity}%",
+    "format-icons": {
+      "charging": [
+        "󰢜",
+        "󰂆",
+        "󰂇",
+        "󰂈",
+        "󰢝",
+        "󰂉",
+        "󰢞",
+        "󰂊",
+        "󰂋",
+        "󰂅"
+      ],
+      "default": [
+        "󰁺",
+        "󰁻",
+        "󰁼",
+        "󰁽",
+        "󰁾",
+        "󰁿",
+        "󰂀",
+        "󰂁",
+        "󰂂",
+        "󰁹"
+      ]
+    },
+    "format-full": "󰂅 {capacity}%",
+    "tooltip-format-discharging": "{timeTo}",
+    "tooltip-format-charging": "{timeTo}",
+    "interval": 5,
+    "states": {
+      "warning": 30,
+      "critical": 20
+    }
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "format-connected": "󰂱",
+    "tooltip-format": "Devices connected: {num_connections}",
+    "on-click": "~/.local/bin/launch-focus-tui bluetui"
+  },
+  "pulseaudio#output": {
+    "format": "{icon} ",
+    "tooltip-format": "{icon}  Playing at {volume}%",
+    "format-muted": " ", //",
+    "format-icons": {
+        "default": ["", "", ""]
+    },
+    "max-volume": 100,
+    "scroll-step": 2,
+    "smooth-scrolling-threshold": 1,
+    "on-click": "~/.local/bin/launch-focus-tui wiremix"
+  },
+  "custom/recorder": {
+    "exec": "pgrep -f '^([^ ]*/)?gpu-screen-recorder( |$)' | awk '{print \"Rec\"}'",
+    "interval": 1,
+    "format": "<span> ●</span>",
+    "on-click": "pkill -SIGINT -f '^([^ ]*/)?gpu-screen-recorder( |$)' && notify-send \"󰂚 Recording Stopped\" \"Recording stored at ~/Videos/recordings.\" -t 2000",
+ 
+    "tooltip": false
+  },
+  "tray": {
+    "icon-size": 12,
+    "spacing": 17,
+    "show-passive-items": true
+  },
+}

@@ -1,0 +1,8 @@
+@define-color foreground #d3c6aa;
+@define-color bg #2d353b;
+@define-color blue #7fbbb3;
+@define-color background alpha(@bg, 0.95);
+
+#custom-arch {
+  color: @blue;
+}

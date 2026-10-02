@@ -1,0 +1,121 @@
+# Installed with: sudo pacman -S --needed
+# Official Arch repositories only. One package per line, # for comments.
+# NOTE: kernel, bootloader, firmware, GPU drivers, audio stack (pipewire),
+# networking and firewall are NOT listed on purpose - they are assumed to be
+# already set up during the base install of the new machine.
+
+# --- core tools / build ---
+base-devel
+git
+jq
+man-db
+openssh
+python
+rsync
+sudo
+wget
+
+# --- hyprland desktop ---
+hyprland
+hypridle
+hyprlock
+hyprpicker
+hyprsunset
+xdg-desktop-portal-hyprland
+xdg-utils
+uwsm
+polkit-gnome
+polkit-kde-agent
+
+# --- bars / launchers / theming ---
+# (waybar-git and walker-bin come from the AUR, see aur.txt)
+swaybg
+swayosd
+dunst
+nwg-look
+gnome-themes-extra
+
+# --- terminals / shells / prompt ---
+kitty
+foot
+starship
+lsd
+fastfetch
+
+# --- editors / dev ---
+neovim
+nodejs
+opencode
+
+# --- file managers / archives ---
+nautilus
+gvfs-mtp
+libmtp
+libreoffice-fresh
+evince
+
+# --- media players / recorders ---
+mpd
+mpd-mpris
+mpc
+impala
+rmpc
+mpv
+mpv-mpris
+gpu-screen-recorder
+guvcview
+grim
+slurp
+tesseract
+tesseract-data-eng
+wl-clipboard
+pavucontrol
+wiremix
+
+# --- apps ---
+chromium
+firefox
+obsidian
+scrcpy
+android-tools
+bluetui
+bluez
+bluez-utils
+bottom
+brightnessctl
+btop
+cups
+cups-pk-helper
+system-config-printer
+gnome-disk-utility
+gnome-sound-recorder
+imv
+power-profiles-daemon
+sddm
+wmenu
+wofi
+yazi
+yt-dlp
+
+# --- codecs ---
+gst-libav
+gst-plugin-pipewire
+gst-plugins-bad
+gst-plugins-base
+gst-plugins-good
+gst-plugins-ugly
+
+# --- qt/gtk wayland glue ---
+qt5-graphicaleffects
+qt5-quickcontrols2
+qt5-svg
+qt5-wayland
+qt6-wayland
+
+# --- fonts ---
+noto-fonts
+noto-fonts-emoji
+ttf-cascadia-code
+ttf-cascadia-mono-nerd
+ttf-dejavu
+ttf-liberation

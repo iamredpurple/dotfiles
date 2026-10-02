@@ -1,0 +1,7 @@
+[SddmGreeterTheme]
+Name=Matte Right Minimal
+Comment=A minimal matte black theme with right-aligned login and session selector
+Type=SDDMTheme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf

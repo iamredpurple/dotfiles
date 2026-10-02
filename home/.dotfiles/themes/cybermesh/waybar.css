@@ -1,0 +1,22 @@
+@define-color foreground #d6e2ee;
+@define-color background #16242d;/* #213442;*/
+
+/* for bar2 */
+window#waybar {
+  background-color: transparent;
+  border: none;
+}
+window#waybar>box {
+  background-color: alpha(@background, 0.8);
+  border: 2px solid alpha(@foreground, 0.6);
+  border-radius: 12px;
+  margin: 3px 200px 3px 200px;
+}
+
+.modules-left, .modules-right, tooltip {
+  border-radius: 8px;
+}
+
+#left1, #left2, #left3, #right1, #right2, #right3, #workspaces, #workspaces button, #workspaces button.active, #workspaces button.empty, #workspaces button.empty.active {
+  border-radius: 4px;
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New Tab</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --text: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Cascadia Mono NF Semi-Light", "Cascadia Mono",
+                   ui-monospace, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      user-select: none;
+    }
+    #clock {
+      font-size: 5.5rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    #date {
+      font-size: 1.15rem;
+      opacity: 0.75;
+      text-transform: capitalize;
+    }
+    #colors {
+      position: fixed;
+      left: 1rem;
+      bottom: 0.9rem;
+      font-size: 0.75rem;
+      opacity: 0.45;
+      letter-spacing: 0.03em;
+    }
+    #hint {
+      position: fixed;
+      right: 1rem;
+      bottom: 0.9rem;
+      font-size: 0.75rem;
+      opacity: 0.35;
+    }
+    #search {
+      margin-top: 2.2rem;
+      width: min(34rem, 74vw);
+    }
+    #search input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid color-mix(in srgb, var(--text) 35%, transparent);
+      border-radius: 999px;
+      padding: 0.65rem 1.2rem;
+      color: var(--text);
+      font: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      text-align: center;
+    }
+    #search input::placeholder { color: color-mix(in srgb, var(--text) 45%, transparent); }
+    #search input:focus {
+      border-color: color-mix(in srgb, var(--text) 75%, transparent);
+    }
+  </style>
+</head>
+<body>
+  <div id="clock">--:--</div>
+  <div id="date"></div>
+  <form id="search" action="https://duckduckgo.com/" method="get">
+    <input name="q" placeholder="search" autocomplete="off" spellcheck="false">
+  </form>
+  <div id="colors"></div>
+  <div id="hint">scheme-newtab</div>
+  <script src="newtab.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]; then
+  echo "Usage: theme-change <theme-name>"
+  exit 1
+fi
+
+THEME_DIR="$HOME/.dotfiles/themes"
+MASTER_LINK="$HOME/.config/current_theme"
+
+TARGET_THEME="$1"
+TARGET_PATH="$THEME_DIR/$TARGET_THEME"
+ln -sfn "$TARGET_PATH" "$MASTER_LINK"
+
+#kill nautilus
+nautilus -q >/dev/null 2>&1
+
+#for yazi's pill-box capsule thingy, toggling based on themes
+$HOME/.local/bin/yazi-pad $TARGET_THEME >/dev/null 2>&1
+
+#kill and restart waybar and reload hypr
+killall -SIGUSR2 waybar 2>/dev/null
+hyprctl reload >/dev/null 2>&1
+
+#wallpaper changing
+$HOME/.local/bin/wallpaper $HOME/.config/current_theme/wallpapers/1*
+
+killall -9 dunst
+
+pkill -x swayosd-server && setsid swayosd-server >/dev/null 2>&1 &
+
+#changing icon themes
+variant="$(tr -d ' \t\r\n' <~/.config/current_theme/icons.theme)"
+gsettings set org.gnome.desktop.interface icon-theme "$variant"
+
+#setting light mode or dark mode based on the theme
+if [ -f "$MASTER_LINK/light.mode" ]; then
+  gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+else
+  gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+fi
+
+#for keyboard lighting
+$HOME/.local/bin/keyboard
+
+#for kitty
+killall -SIGUSR1 kitty
+killall -SIGUSR2 btop
+
+#for opencode
+# $HOME/.local/bin/opencode-theme.py
+
+#if obsidian is open reload it
+CLASS="md.obsidian.Obsidian"
+CLIENT_DATA=$(hyprctl clients -j | jq -r ".[] | select(.class == \"$CLASS\")")
+if [ ! -z "$CLIENT_DATA" ]; then
+  obsidian reload
+fi
+#opencode reload
+killall -SIGUSR2 opencode >/dev/null 2>&1
+
+# Notify about the Changed Theme
+notify-send "󰂚 Theme Changed" "Theme has been changed to '${1^}'" -t 2000
+
+#apply colorscheme to webpages using dark reader - The script also has hotreload for webpage theme, might be useful later
+if ! "$HOME/.local/bin/chromium-theme"; then
+  notify-send "󰂚 Theme Changed" "chromium/Dark Reader colors FAILED to apply (run chromium-theme for details)" -t 5000
+fi
+
+exit 0

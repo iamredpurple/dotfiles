@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if pgrep -x "hyprsunset" >/dev/null; then
+  killall -9 hyprsunset
+  notify-send "󰂚 Night Mode - OFF" "Night mode has been disabled" -t 2000
+else
+  hyprsunset -t 3500 &
+  notify-send "󰂚 Night Mode - ON" "Night mode has been enabled" -t 2000
+fi

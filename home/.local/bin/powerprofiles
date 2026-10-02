@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+OPTIONS="󱓞  Overclock\n  Balanced\n󰌪  Powersave"
+CHOICE=$(echo -en "$OPTIONS" | walker --dmenu -n --width 250)
+
+[ -z "$CHOICE" ] && exit 0
+
+case "$CHOICE" in
+*"Overclock"*)
+  powerprofilesctl set performance
+  ;;
+*"Balanced"*)
+  powerprofilesctl set balanced
+  ;;
+*"Powersave"*)
+  powerprofilesctl set power-saver
+  ;;
+*)
+  exit 0
+  ;;
+esac
+
+notify-send "󰂚 Power Profiles Control" "Power Profiles set to $CHOICE" -t 2000

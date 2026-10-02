@@ -1,0 +1,10 @@
+[urgency_normal]
+background = "#faf4ed"
+foreground = "#575279"
+frame_color = "#575279"
+
+[global]
+horizontal_padding =14
+vertical_padding = 10
+font = "CaskaydiaMono 10"
+frame_width=1

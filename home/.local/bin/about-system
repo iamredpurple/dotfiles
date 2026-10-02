@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+#also like launch-focus-tui but for this specific about-tui-float class for the "about info" of system
+class="about-tui-float"
+
+CLIENT_DATA=$(hyprctl clients -j | jq -r ".[] | select(.class == \"$class\")")
+
+if [ ! -z "$CLIENT_DATA" ]; then
+  WORKSPACE_ID=$(echo "$CLIENT_DATA" | jq -r '.workspace.id')
+  ADDR=$(echo "$CLIENT_DATA" | jq -r '.address')
+
+  hyprctl eval "hl.dispatch(hl.dsp.focus({ workspace = '$WORKSPACE_ID' }))"
+  hyprctl eval "hl.dispatch(hl.dsp.focus({ window = 'address:$ADDR' }))"
+else
+  hyprctl dispatch "hl.dsp.exec_cmd('kitty --class $class -o font_size=13 sh -c \'fastfetch; tput civis; read -r\'')"
+fi

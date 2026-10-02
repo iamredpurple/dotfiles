@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+OUTPUT_DIR="$HOME/Videos/recordings"
+OUTPUT_FILE="$OUTPUT_DIR/rec_$(date +%Y-%m-%d_%H-%M-%S).mp4"
+
+PROCESS_NAME="gpu-screen-rec"
+# prevent spawning multiple recorders at once
+if pgrep -f "^$PROCESS_NAME" >/dev/null; then
+  notify-send "󰂚 Recording Stopped" "Recording stored at ~/Videos/recordings." -t 2000 #-i dialog-warning
+  pkill -SIGINT -f "^$PROCESS_NAME"
+  exit 1
+fi
+
+OPTIONS="󰍹 󰍭 Fullscreen (No Mic)\n󰍹 󰍬 Fullscreen (With Mic)\n󰕧 󰍭 Region (No Mic)\n󰕧 󰍬 Region (With Mic)"
+CHOICE=$(echo -e "$OPTIONS" | walker --dmenu -n --width 200)
+
+# exit quietly if the menu was dismissed
+[ -z "$CHOICE" ] && exit 0
+
+case "$CHOICE" in
+*"Region (No Mic)"*)
+  REGION=$(slurp -f '%wx%h+%x+%y')
+  [ -z "$REGION" ] && exit 1
+  setsid --fork gpu-screen-recorder -w region -region "$REGION" -f 60 -q ultra -a "default_output" -o "$OUTPUT_FILE" >/dev/null 2>&1
+  ;;
+*"Region (With Mic)"*)
+  REGION=$(slurp -f '%wx%h+%x+%y')
+  [ -z "$REGION" ] && exit 1
+  setsid --fork gpu-screen-recorder -w region -region "$REGION" -f 60 -q ultra -a "default_output|default_input" -o "$OUTPUT_FILE" >/dev/null 2>&1
+  ;;
+*"Fullscreen (No Mic)"*)
+  setsid --fork gpu-screen-recorder -w screen -f 60 -q ultra -a "default_output" -o "$OUTPUT_FILE" >/dev/null 2>&1
+  ;;
+*"Fullscreen (With Mic)"*)
+  setsid --fork gpu-screen-recorder -w screen -f 60 -q ultra -a "default_output|default_input" -o "$OUTPUT_FILE" >/dev/null 2>&1
+  ;;
+*)
+  exit 0
+  ;;
+esac
+
+#sleep 0.5
+#pkill -RTMIN+8 waybar
+notify-send "󰂚 Recording Started" "$CHOICE is active" -t 2000 #-i video-x-generic

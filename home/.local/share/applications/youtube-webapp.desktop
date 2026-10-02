@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=YouTube
+Comment=Watch YouTube in a standalone window
+Exec=chromium --app=https://youtube.com
+Icon=youtube-webapp
+Terminal=false
+Categories=AudioVideo;Video;

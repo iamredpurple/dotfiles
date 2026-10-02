@@ -1,0 +1,10 @@
+@define-color foreground #c2c2b0;
+@define-color background #222222;
+@define-color blue #78824b;
+@define-color green #5f875f;
+@define-color yellow #b36d43;
+
+#custom-arch {
+  color: @blue;
+}
+

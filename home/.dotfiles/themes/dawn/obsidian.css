@@ -1,0 +1,134 @@
+/*Theme by sk*/
+
+.theme-dark, .theme-light {
+  /* Background Colors when in an out of focus */
+  --background-primary: #faf4ed; /*bg*/
+  --background-primary-alt: #faf4ed;
+  --background-secondary: #faf4ed;
+  --background-secondary-alt: #faf4ed;
+
+  /*Main text color*/
+  --text-normal: #575279; /*fg*/
+
+  /* Colors overrides */
+  --color-red: #b4637a; /*red*/
+  --color-green: #286983; /*green*/
+  --color-yellow: #ea9d34; /*yellow*/
+  --color-blue: #56949f; /*blue*/
+  --color-orange: #cf8057;
+  --color-cyan: #d7827e;
+  --color-pink: #907aa9;
+  --color-purple: #907aa9; /*magenta*/
+
+  /* Selection Color */
+  --text-selection: #9893a5; /*lighter color of fg*/
+
+  /* Border Color */
+  --background-modifier-border: #9893a5; /*darker fg*/
+
+  /* Heading Colors */
+  --text-title-h1: #b4637a; /*red*/
+  --text-title-h2: #286983; /*green*/
+  --text-title-h3: #ea9d34; /*yellow*/
+  --text-title-h4: #56949f; /*blue*/
+  --text-title-h5: #d7827e; /*cyan*/
+  --text-title-h6: #907aa9; /*magenta*/
+
+  /* Links and accents : blue*/
+  --text-link: #56949f;
+  --text-accent: #56949f;
+  --text-accent-hover: #56949f;
+  --interactive-accent: #56949f;
+  --interactive-accent-hover: #56949f;
+
+  /* Muted text */
+  --text-muted: color-mix(in srgb, #575279 70%, transparent);
+  --text-faint: color-mix(in srgb, #575279 55%, transparent);
+
+  /* Code */
+  --code-normal: #d7827e; /*cyan*/
+  --code-background: #ede7e1; /*darker or lighter of bg*/
+  --code-keyword: #b4637a;
+  --code-string: #286983;
+  --code-number: #ea9d34;
+  --code-operator: #56949f;
+  --code-def: #56949f;
+  --code-variable: #ea9d34;
+
+
+  /* Errors and success */
+  --text-error: #b4637a;
+  --text-error-hover: #b4637a;
+  --text-success: #286983;
+
+  /* Tags */
+  --tag-color: #907aa9; /*magenta*/
+  --tag-background: #ede7e1;/*darker bg*/
+  
+
+  /* Graph */
+  --graph-line: #575279;
+  --graph-node: #56949f;
+  --graph-node-focused: #56949f;
+  --graph-node-tag: #d7827e;
+  --graph-node-attachment: #286983;
+
+}
+
+/* Headers */
+.cm-header-1, .markdown-rendered h1 { color: var(--text-title-h1); }
+.cm-header-2, .markdown-rendered h2 { color: var(--text-title-h2); }
+.cm-header-3, .markdown-rendered h3 { color: var(--text-title-h3); }
+.cm-header-4, .markdown-rendered h4 { color: var(--text-title-h4); }
+.cm-header-5, .markdown-rendered h5 { color: var(--text-title-h5); }
+.cm-header-6, .markdown-rendered h6 { color: var(--text-title-h6); }
+
+/* Code blocks */
+.markdown-rendered code {
+  color: #d7827e; /*cyan*/
+}
+
+/* Syntax highlighting 
+.cm-s-obsidian span.cm-keyword { color: #b4637a; }
+.cm-s-obsidian span.cm-string { color: #286983; }
+.cm-s-obsidian span.cm-number { color: #ea9d34; }
+.cm-s-obsidian span.cm-comment { color: #575279; }
+.cm-s-obsidian span.cm-operator { color: #56949f; }
+.cm-s-obsidian span.cm-def { color: #56949f; }
+.cm-s-obsidian span.cm-variable { color: #ea9d34; } */
+
+/* Links */
+.markdown-rendered a {
+  color: var(--text-link);
+}
+
+/* Blockquotes */
+.markdown-rendered blockquote {
+  border-left-color: #56949f;
+}
+
+/* Active elements */
+.workspace-leaf.mod-active .workspace-leaf-header-title {
+  color: var(--interactive-accent);
+}
+
+.nav-file-title.is-active {
+  color: var(--interactive-accent);
+}
+
+/* Search results */
+.search-result-file-title {
+  color: var(--interactive-accent);
+}
+
+/* Callout Tip */
+.callout[data-callout="tip"] {
+  --callout-color: #56949f;
+  --callout-icon: lucide-flame; /*change icon*/
+}
+
+/*For other external buttons*/
+.vertical-tabs-container select, .vertical-tabs-container button:not(.mod-cta), .vertical-tabs-container button.mod-cta {
+  background-color: var(--code-background);
+  color: var(--text-normal);
+}

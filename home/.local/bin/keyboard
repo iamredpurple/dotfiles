@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+file="$HOME/.config/current_theme/rgb.txt"
+r=$(sed -n '1p' "$file")
+g=$(sed -n '2p' "$file")
+b=$(sed -n '3p' "$file")
+
+$HOME/.rgb/facer_rgb.py -m 0 -z 1 -cR $r -cG $g -cB $b
+$HOME/.rgb/facer_rgb.py -m 0 -z 2 -cR $r -cG $g -cB $b
+$HOME/.rgb/facer_rgb.py -m 0 -z 3 -cR $r -cG $g -cB $b
+$HOME/.rgb/facer_rgb.py -m 0 -z 4 -cR $r -cG $g -cB $b
+

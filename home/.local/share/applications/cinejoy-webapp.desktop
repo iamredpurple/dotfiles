@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Cinema
+Comment=Watch Movies in a standalone window
+Exec=chromium --app=https://cinejoy.to
+Icon=cinejoy-webapp
+Terminal=false
+Categories=AudioVideo;Video;

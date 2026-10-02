@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+CACHE_DIR="${HOME}/.cache/yay"
+
+if [ ! -d "$CACHE_DIR" ]; then
+  echo "[-] Error: Yay cache directory not found at $CACHE_DIR"
+  exit 1
+fi
+
+if ! command -v paccache &>/dev/null; then
+  echo "[-] Error: 'paccache' command not found. Please install 'pacman-contrib' first."
+  exit 1
+fi
+
+echo "[+] Starting AUR cache cleanup..."
+echo "----------------------------------------"
+
+for dir in "$CACHE_DIR"/*/; do
+  [ -d "$dir" ] || continue
+  pkg_name=$(basename "$dir")
+
+  if [ ! -f "$dir/PKGBUILD" ] && [ ! -f "$dir/.SRCINFO" ]; then
+    echo "[SAFE] Skipping '$pkg_name' - missing PKGBUILD. (Not an AUR package)"
+    continue
+  fi
+
+  # Rule 1: If the package is NOT installed on the system, delete it entirely
+  if ! pacman -Qi "$pkg_name" &>/dev/null; then
+    echo "[WIPE] Package '$pkg_name' is not installed. Removing cache directory..."
+    rm -rf "$dir"
+
+  # Rule 2: If the package IS installed, keep only the 2 latest versions
+  else
+    echo "[TRIM] Package '$pkg_name' is installed. Trimming cache to 2 versions..."
+    paccache -r -k 2 -c "$dir" >/dev/null 2>&1
+  fi
+done
+
+echo "----------------------------------------"
+echo "[+] AUR cache cleanup complete!"

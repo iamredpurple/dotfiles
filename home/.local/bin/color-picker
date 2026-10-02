@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+COLOR=$(hyprpicker)
+if [ -z "$COLOR" ]; then
+    exit 0
+fi
+
+echo -n "$COLOR" | wl-copy
+
+notify-send -h string:frcolor:"$COLOR" "󰂚 Color Picker" "$COLOR : Copied to Clipboard" -t 2000
+

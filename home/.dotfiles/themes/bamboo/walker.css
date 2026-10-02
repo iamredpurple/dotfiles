@@ -1,0 +1,24 @@
+@define-color selected-text #509475;
+@define-color text #C1C497;
+@define-color base #111c18;
+@define-color border #C1C497;
+@define-color foreground #C1C497;
+@define-color background #111c18;
+
+.box-wrapper, .search-container {
+  border-radius: 10px;
+  background-color: alpha(@base, 0.98);
+}
+
+.box-wrapper {
+  box-shadow: 0 2px 12px alpha(@border, 0.95);
+}
+
+.search-container {
+  background-color: transparent;
+}
+
+.preview {
+  border: 1px solid @border;
+  border-radius: 10px;
+}

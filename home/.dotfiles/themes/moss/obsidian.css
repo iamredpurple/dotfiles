@@ -1,0 +1,134 @@
+/*Theme by sk*/
+
+.theme-dark, .theme-light {
+  /* Background Colors when in an out of focus */
+  --background-primary: #dfe4c4; /*bg*/
+  --background-primary-alt: #dfe4c4;
+  --background-secondary: #dfe4c4;
+  --background-secondary-alt: #dfe4c4;
+
+  /*Main text color*/
+  --text-normal: #1c2d28; /*fg*/
+
+  /* Colors overrides */
+  --color-red: #b14752; /*red*/
+  --color-green: #556753; /*green*/
+  --color-yellow: #384f54; /*yellow*/
+  --color-blue: #4c6c94; /*blue*/
+  --color-orange: #dc8164;
+  --color-cyan: #3d727d;
+  --color-pink: #8a5b81;
+  --color-purple: #8a5b81; /*magenta*/
+
+  /* Selection Color */
+  --text-selection: #ebebc1; /*lighter color of fg*/
+
+  /* Border Color */
+  --background-modifier-border: #556753; /*darker fg*/
+
+  /* Heading Colors */
+  --text-title-h1: #b14752; /*red*/
+  --text-title-h2: #556753; /*green*/
+  --text-title-h3: #384f54; /*yellow*/
+  --text-title-h4: #4c6c94; /*blue*/
+  --text-title-h5: #3d727d; /*cyan*/
+  --text-title-h6: #8a5b81; /*magenta*/
+
+  /* Links and accents : blue*/
+  --text-link: #4c6c94;
+  --text-accent: #4c6c94;
+  --text-accent-hover: #4c6c94;
+  --interactive-accent: #4c6c94;
+  --interactive-accent-hover: #4c6c94;
+
+  /* Muted text */
+  --text-muted: color-mix(in srgb, #1c2d28 70%, transparent);
+  --text-faint: color-mix(in srgb, #1c2d28 55%, transparent);
+
+  /* Code */
+  --code-normal: #3d727d; /*cyan*/
+  --code-background: #cbd4ba; /*darker or lighter of bg*/
+  --code-keyword: #b14752;
+  --code-string: #556753;
+  --code-number: #384f54;
+  --code-operator: #4c6c94;
+  --code-def: #4c6c94;
+  --code-variable: #384f54;
+
+
+  /* Errors and success */
+  --text-error: #b14752;
+  --text-error-hover: #b14752;
+  --text-success: #556753;
+
+  /* Tags */
+  --tag-color: #8a5b81; /*magenta*/
+  --tag-background: #cbd4ba;/*darker bg*/
+  
+
+  /* Graph */
+  --graph-line: #1c2d28;
+  --graph-node: #4c6c94;
+  --graph-node-focused: #4c6c94;
+  --graph-node-tag: #3d727d;
+  --graph-node-attachment: #556753;
+
+}
+
+/* Headers */
+.cm-header-1, .markdown-rendered h1 { color: var(--text-title-h1); }
+.cm-header-2, .markdown-rendered h2 { color: var(--text-title-h2); }
+.cm-header-3, .markdown-rendered h3 { color: var(--text-title-h3); }
+.cm-header-4, .markdown-rendered h4 { color: var(--text-title-h4); }
+.cm-header-5, .markdown-rendered h5 { color: var(--text-title-h5); }
+.cm-header-6, .markdown-rendered h6 { color: var(--text-title-h6); }
+
+/* Code blocks */
+.markdown-rendered code {
+  color: #3d727d; /*cyan*/
+}
+
+/* Syntax highlighting 
+.cm-s-obsidian span.cm-keyword { color: #b14752; }
+.cm-s-obsidian span.cm-string { color: #556753; }
+.cm-s-obsidian span.cm-number { color: #384f54; }
+.cm-s-obsidian span.cm-comment { color: #1c2d28; }
+.cm-s-obsidian span.cm-operator { color: #4c6c94; }
+.cm-s-obsidian span.cm-def { color: #4c6c94; }
+.cm-s-obsidian span.cm-variable { color: #384f54; } */
+
+/* Links */
+.markdown-rendered a {
+  color: var(--text-link);
+}
+
+/* Blockquotes */
+.markdown-rendered blockquote {
+  border-left-color: #4c6c94;
+}
+
+/* Active elements */
+.workspace-leaf.mod-active .workspace-leaf-header-title {
+  color: var(--interactive-accent);
+}
+
+.nav-file-title.is-active {
+  color: var(--interactive-accent);
+}
+
+/* Search results */
+.search-result-file-title {
+  color: var(--interactive-accent);
+}
+
+/* Callout Tip */
+.callout[data-callout="tip"] {
+  --callout-color: #4c6c94;
+  --callout-icon: lucide-flame; /*change icon*/
+}
+
+/*For other external buttons*/
+.vertical-tabs-container select, .vertical-tabs-container button:not(.mod-cta), .vertical-tabs-container button.mod-cta {
+  background-color: var(--code-background);
+  color: var(--text-normal);
+}

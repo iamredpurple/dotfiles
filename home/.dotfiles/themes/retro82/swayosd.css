@@ -1,0 +1,9 @@
+@define-color background-color #00172e;
+@define-color border-color #f6dcac;
+@define-color label #f6dcac;
+@define-color image #f6dcac;
+@define-color progress #e97b3c;
+
+window {
+  background-color: alpha(@background-color, 0.95);
+}

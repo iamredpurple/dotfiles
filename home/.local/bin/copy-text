@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -e
+
+TEMP_IMG=$(mktemp /tmp/ocr_shot.XXXXXX.png)
+trap 'rm -f "$TEMP_IMG"' EXIT
+
+if ! slurp | grim -g - "$TEMP_IMG"; then
+  exit 0
+fi
+
+if text=$(tesseract "$TEMP_IMG" stdout -l eng 2>/dev/null); then
+  text=$(echo "$text" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+  if [ -z "$text" ]; then
+    notify-send "󰂚 OCR Failure" "Text NOT detected." -t 2000
+  else
+    echo -n "$text" | wl-copy
+    notify-send "󰂚 OCR Success" "Copied to Clipboard" -t 2000
+  fi
+else
+  notify-send "󰂚 OCR Error" "Text Processing failed." -t 2000
+fi

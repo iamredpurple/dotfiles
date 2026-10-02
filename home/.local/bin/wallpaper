@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+SAVE_PATH="$HOME/.config/current_theme"
+
+if [ -z "$1" ]; then
+  echo "Usage: wallpaper <image name/path>"
+  exit 1
+fi
+
+INPUT="$1"
+
+if [[ "$INPUT" =~ ^/ ]]; then
+  WALL_PATH="$INPUT"
+
+else
+  WALL_PATH="$(pwd)/$INPUT"
+fi
+
+killall swaybg
+setsid swaybg -i "$WALL_PATH" &
+disown >/dev/null 2>&1
+
+ln -sfn "$WALL_PATH" "$SAVE_PATH/current_wallpaper.png"

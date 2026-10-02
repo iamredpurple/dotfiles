@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+items=" Lock\n Sleep\n Reboot\n⏻ Shutdown"
+output=$(echo -e $items | walker --dmenu -n --width 250)
+
+if [[ "$output" == " Lock" ]]; then
+  loginctl lock-session && hyprlock
+elif [[ "$output" == " Sleep" ]]; then
+  systemctl suspend
+elif [[ "$output" == " Reboot" ]]; then
+  systemctl reboot
+elif [[ "$output" == "⏻ Shutdown" ]]; then
+  systemctl poweroff
+
+else
+  echo "Select a Command"
+  exit 0
+fi

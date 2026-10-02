@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+APP=$1
+
+if [ -z "$APP" ]; then
+  echo "Usage: $0 <app-name>"
+  exit 1
+fi
+
+CLASS="tui-float"
+
+CLIENT_DATA=$(hyprctl clients -j | jq -r ".[] | select(.class == \"$CLASS\" and (.title | ascii_downcase | contains(\"${APP,,}\")))")
+
+if [ ! -z "$CLIENT_DATA" ]; then
+  WORKSPACE_ID=$(echo "$CLIENT_DATA" | jq -r '.workspace.id')
+  ADDR=$(echo "$CLIENT_DATA" | jq -r '.address')
+
+  hyprctl eval "hl.dispatch(hl.dsp.focus({ workspace = '$WORKSPACE_ID' }))"
+  hyprctl eval "hl.dispatch(hl.dsp.focus({ window = 'address:$ADDR' }))"
+else
+  hyprctl dispatch "hl.dsp.exec_cmd('kitty --class=$CLASS -T $APP -e $APP')"
+fi

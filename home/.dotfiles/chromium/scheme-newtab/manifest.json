@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Scheme New Tab",
+  "version": "1.0.0",
+  "description": "New tab page colored from ~/.config/current_theme/chromium.theme",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  }
+}

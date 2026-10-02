@@ -1,0 +1,68 @@
+SUPER + CTRL + K                Launch this Keybinds Hint
+SUPER + RETURN                  Launch Terminal (Kitty)
+SUPER + ALT + M                 Restart Hyprland
+SUPER + Q                       Close Active Window
+SUPER + B                       Launch Browser (Chromium)
+SUPER + E                       Launch File Explorer (Nautilus)
+SUPER + P                       Toggle Pseudo-Tile Mode
+SUPER + J                       Toggle Split (Horizontal / Vertical)
+SUPER + LEFT                    Focus Left Window
+SUPER + RIGHT                   Focus Right Window
+SUPER + UP                      Focus Window Above
+SUPER + DOWN                    Focus Window Below
+SUPER + SPACE                   Toggle App Launcher (Walker)
+SUPER + CTRL + E                Toggle Emoji Menu (Walker)
+SUPER + CTRL + C                Toggle Clipboard Menu (Walker)
+SUPER + CTRL + SHIFT + SPACE    Toggle Themes Menu (Walker)
+SUPER + CTRL + SPACE            Toggle Wallpapers Menu (Walker)
+SUPER + SHIFT + SPACE           Toggle Dynamic-Themes Menu (Walker)
+SUPER + CTRL + N                Toggle Night Mode
+SUPER + SHIFT + Y               Launch YouTube
+SUPER + SHIFT + E               Launch Email (Gmail)
+SUPER + SHIFT + C               Launch Cinema
+SUPER + SHIFT + S               Launch Share (LocalSend)
+SUPER + SHIFT + O               Launch Notes (Obsidian)
+SUPER + TAB                     Focus Tiling / Floating Window
+SUPER + CTRL + W                Launch Wifi (Impala)
+SUPER + CTRL + B                Launch Bluetooth (Bluetui)
+SUPER + CTRL + T                Launch Task Manager (Btop++)
+SUPER + CTRL + A                Launch Audio Manager (Wiremix)
+SUPER + SHIFT + M               Launch Music Player (Rmpc)
+SUPER + ESCAPE                  Launch Power Options Menu
+PRINT                           Screenshot to Clipboard
+SHIFT + PRINT                   Screenshot to ~/Pictures/screenshots
+SUPER + SHIFT + PRINT           Launch Color Picker
+SUPER + ALT + PRINT             Screenshot to Text Converter
+SUPER + PRINT                   Launch Screen-Recorder Menu
+SUPER + COMMA                   Dismiss Current Notification
+SUPER + SHIFT + COMMA           Dismiss All Notifications
+SUPER + ALT + COMMA             Revive Last Closed Notification
+SUPER + T                       Toggle Window Float / Tile
+SUPER + O                       Toggle Persistent Float / Tile
+SUPER + F                       Toggle Window Maximize
+SUPER + CTRL + F                Toggle Tiled Fullscreen
+SUPER + ALT + F                 Toggle Window Fullscreen
+SUPER + KEY (i)                 Switch to Workspace 'i'
+SUPER + SHIFT + KEY (i)         Move Selected Window to Workspace 'i'
+SUPER + ALT + KEY (i)           Send Selected Window to Workspace 'i'
+SUPER + S                       Toggle Special Workspace (Scratchpad)
+SUPER + CTRL + S                Move Selected Window to Scratchpad
+SUPER + mouse_down              Focus Workspace 'i + 1'
+SUPER + mouse_up                Focus Workspace 'i - 1'
+SUPER + mouse:272               Drag Window
+SUPER + mouse:273               Resize Window
+SUPER + SHIFT + LEFT            Move Window towards Left
+SUPER + SHIFT + RIGHT           Move Window towards Right
+SUPER + SHIFT + UP              Move Window towards Up
+SUPER + SHIFT + DOWN            Move Window towards Down
+SUPER + CTRL + LEFT             Resize Window towards Left
+SUPER + CTRL + RIGHT            Resize Window towards Right
+SUPER + CTRL + UP               Resize Window towards Up
+SUPER + CTRL + DOWN             Resize Window towards Down
+XF86Presentation                Launch Power-Profiles Menu
+SUPER + NUMPAD_ENTER            Launch About System
+SUPER + CTRL + MINUS (-)        Toggle Bar (Waybar) Visibility
+SUPER + X                       Universal Cut
+SUPER + C                       Universal Copy
+SUPER + V                       Universal Paste
+SUPER + BACKSPACE               Toggle Window Transparency

@@ -1,0 +1,30 @@
+# Installed with: yay -S --needed
+# AUR packages (the helper itself, 'yay', is bootstrapped by install.sh).
+# One package per line, # for comments.
+
+# --- aur helper (plain 'yay', NOT yay-git) ---
+yay
+
+# --- elephant (app launcher / palette, autostarted by hyprland.lua) ---
+elephant-bin
+elephant-calc-bin
+elephant-clipboard-bin
+elephant-desktopapplications-bin
+elephant-files-bin
+elephant-menus-bin
+elephant-providerlist-bin
+elephant-symbols-bin
+elephant-websearch-bin
+
+# --- desktop apps ---
+localsend-bin
+walker-bin
+waybar-git
+
+# --- theming ---
+matugen-bin
+yaru-icon-theme
+
+# --- misc tools used by the setup ---
+downgrade
+zscroll-git

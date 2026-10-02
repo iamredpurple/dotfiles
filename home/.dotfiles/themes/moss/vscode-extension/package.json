@@ -1,0 +1,22 @@
+{
+    "name": "theme-harbor",
+    "displayName": "Harbor Theme",
+    "description": "Harbor color theme",
+    "publisher": "local",
+    "version": "1.0.0",
+    "engines": {
+        "vscode": "^1.70.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Harbor",
+                "uiTheme": "vs",
+                "path": "./themes/harbor-color-theme.json"
+            }
+        ]
+    }
+}

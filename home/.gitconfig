@@ -1,0 +1,4 @@
+# No identity stored here on purpose (this repo is public).
+# Set it on the new machine:
+#   git config --global user.name  "your-name"
+#   git config --global user.email "your-email"

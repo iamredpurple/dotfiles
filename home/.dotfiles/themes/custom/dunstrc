@@ -1,0 +1,15 @@
+[urgency_normal]
+background = "#1a1111"
+foreground = "#f1dedd"
+frame_color = "#f1dedd"
+
+[urgency_critical]
+background = "#1a1111"
+foreground = "#f1dedd"
+frame_color = "#ffb4ab"
+
+[global]
+horizontal_padding =14
+vertical_padding = 10
+font = "CaskaydiaMono 10"
+frame_width=1

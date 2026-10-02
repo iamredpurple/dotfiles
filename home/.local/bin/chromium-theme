@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Sync Dark Reader colors in chromium with the current system theme.
+
+set -u
+
+THEME_FILE="$HOME/.config/current_theme/chromium.theme"
+DARKREADER="$HOME/.local/bin/darkreader-theme.py"
+
+was_open=0
+if hyprctl clients 2>/dev/null | grep -qiE '^[[:space:]]*class:[[:space:]]*chromium[[:space:]]*$'; then
+  was_open=1
+# elif pgrep -x chromium >/dev/null 2>&1; then
+#   was_open=1
+fi
+
+pkill -x chromium 2>/dev/null
+for _ in $(seq 1 30); do
+  pgrep -x chromium >/dev/null 2>&1 || break
+  sleep 0.5
+done
+
+if [ ! -f "$THEME_FILE" ]; then
+  echo "chromium-theme: $THEME_FILE not found" >&2
+  status=2
+else
+  bg="$(sed -n '1p' "$THEME_FILE" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  text="$(sed -n '2p' "$THEME_FILE" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  if [ -z "$bg" ] || [ -z "$text" ]; then
+    echo "chromium-theme: $THEME_FILE must hold bg color on line 1 and text color on line 2" >&2
+    status=2
+  else
+    python3 "$DARKREADER" --method offline --bg "$bg" --text "$text"
+    status=$?
+    # push the same colors into the scheme-newtab extension (fallback file)
+    python3 "$HOME/.local/bin/chromium-scheme-apply.py" --bg "$bg" --text "$text" || true
+  fi
+fi
+
+if [ "$was_open" -eq 1 ]; then
+  setsid chromium >/dev/null 2>&1 </dev/null &
+  disown 2>/dev/null || true
+fi
+
+exit "${status:-0}"
