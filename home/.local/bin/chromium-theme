@@ -1,10 +1,30 @@
 #!/usr/bin/env bash
-# Sync Dark Reader colors in chromium with the current system theme.
+# Sync Dark Reader colors AND mode in chromium with the current system theme.
+#
+# Dark Reader keeps two colour pairs (darkScheme* / lightScheme*) and its
+# theme.mode picks the active one: 1 = dark, 0 = light.  Which pair that is
+# follows org.gnome.desktop.interface color-scheme, so 'prefer-light' writes
+# the light pair with --mode light and 'prefer-dark' the dark pair with
+# --mode dark.
 
 set -u
 
 THEME_FILE="$HOME/.config/current_theme/chromium.theme"
-DARKREADER="$HOME/.local/bin/darkreader-theme.py"
+DARKREADER="$HOME/.local/bin/darkreader-theme-mode.py"
+
+# 'light' when the system asks for a light GTK theme, 'dark' otherwise.
+# Falls back to dark if gsettings is unavailable or the key is unset, which
+# is what this script did before the mode switch existed.
+gsettings_mode() {
+  local cs=""
+  if command -v gsettings >/dev/null 2>&1; then
+    cs="$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || true)"
+  fi
+  case "$cs" in
+    *prefer-light*) printf 'light\n' ;;
+    *)              printf 'dark\n' ;;
+  esac
+}
 
 was_open=0
 if hyprctl clients 2>/dev/null | grep -qiE '^[[:space:]]*class:[[:space:]]*chromium[[:space:]]*$'; then
@@ -22,6 +42,9 @@ done
 if [ ! -f "$THEME_FILE" ]; then
   echo "chromium-theme: $THEME_FILE not found" >&2
   status=2
+elif [ ! -f "$DARKREADER" ]; then
+  echo "chromium-theme: $DARKREADER not found" >&2
+  status=2
 else
   bg="$(sed -n '1p' "$THEME_FILE" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
   text="$(sed -n '2p' "$THEME_FILE" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
@@ -29,7 +52,17 @@ else
     echo "chromium-theme: $THEME_FILE must hold bg color on line 1 and text color on line 2" >&2
     status=2
   else
-    python3 "$DARKREADER" --method offline --bg "$bg" --text "$text"
+    mode="$(gsettings_mode)"
+    # mode=0 makes Dark Reader use lightScheme*, mode=1 uses darkScheme*,
+    # so each branch must pass the pair for the scheme it activates.
+    echo "chromium-theme: color-scheme -> Dark Reader mode=$mode bg=$bg text=$text"
+    if [ "$mode" = "light" ]; then
+      python3 "$DARKREADER" --method offline --mode light \
+        --light-bg "$bg" --light-text "$text"
+    else
+      python3 "$DARKREADER" --method offline --mode dark \
+        --bg "$bg" --text "$text"
+    fi
     status=$?
     # push the same colors into the scheme-newtab extension (fallback file)
     python3 "$HOME/.local/bin/chromium-scheme-apply.py" --bg "$bg" --text "$text" || true

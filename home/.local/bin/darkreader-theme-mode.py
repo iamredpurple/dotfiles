@@ -6,7 +6,16 @@ Matches Dark Reader's global dark theme to your Hyprland/system colorscheme.
 Extension ID: eimadpbcbfnmbkopoojfekhnkhdbieeh (Chrome Web Store, Dark Reader)
 What it changes: the `theme` key in chrome.storage.local ->
     theme.darkSchemeBackgroundColor and theme.darkSchemeTextColor
-    (optionally lightScheme* too with --light-bg/--light-text).
+    (optionally lightScheme* too with --light-bg/--light-text), and with
+    --mode the theme.mode switch that decides WHICH of those two pairs is
+    actually used by the page (Dark Reader: 1 = dark, 0 = light).
+
+NEW IN THIS COPY (the original darkreader-theme.py is untouched):
+    --mode dark   -> writes theme.mode = 1, requires --bg and --text
+    --mode light  -> writes theme.mode = 0, requires --light-bg and
+                     --light-text
+    Omitting --mode leaves theme.mode alone, so you can retune both colour
+    pairs without changing which one is active.
 
 Two methods (stdlib only, no pip packages required):
 
@@ -28,6 +37,10 @@ Two methods (stdlib only, no pip packages required):
 
 Usage:
     darkreader-theme.py --bg "#111c18" --text "#c1c497"
+    darkreader-theme-mode.py --mode light --light-bg "#dfe4c4" \
+        --light-text "#1c2d28"
+    darkreader-theme-mode.py --mode dark --bg "$BG" --text "$FG"
+    darkreader-theme-mode.py --light-bg "$BG" --light-text "$FG"
     darkreader-theme.py --scheme "Osaka Jade Bamboo"
     darkreader-theme.py --list
     darkreader-theme.py --bg "#1e1e2e" --text "#cdd6f4" --method offline
@@ -56,6 +69,16 @@ EXT_ID = "eimadpbcbfnmbkopoojfekhnkhdbieeh"
 DEFAULT_PORT = 9222
 DEFAULT_PROFILE = "Default"
 HEX_RE = re.compile(r"^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$")
+
+# Dark Reader's ThemeMode enum, as stored in chrome.storage.local theme.mode:
+#   1 = dark (uses darkScheme* colours), 0 = light (uses lightScheme* colours).
+# Verified against the installed bundle:
+#   function getBgPole(theme) {
+#       const isDarkScheme = theme.mode === 1;
+#       const prop = isDarkScheme ? "darkSchemeBackgroundColor"
+#                                : "lightSchemeBackgroundColor";
+MODE_VALUE = {"dark": 1, "light": 0}
+MODE_NAME = {1: "dark", 0: "light"}
 
 BLOCK_SIZE = 32768
 HEADER_SIZE = 7
@@ -208,46 +231,85 @@ def repair_ranges(path: Path, ranges):
 
 THEME_KEY = b"\x01\x05theme"  # tag=PUT(1), keylen=5, key="theme"
 
+BG_KEY = "darkSchemeBackgroundColor"
+TX_KEY = "darkSchemeTextColor"
+LBG_KEY = "lightSchemeBackgroundColor"
+LTX_KEY = "lightSchemeTextColor"
+MODE_KEY = "mode"
+THEME_FIELDS = (BG_KEY, TX_KEY, LBG_KEY, LTX_KEY, MODE_KEY)
+FIELD_SHORT = {BG_KEY: "bg", TX_KEY: "text", LBG_KEY: "light-bg",
+               LTX_KEY: "light-text", MODE_KEY: "mode"}
 
-def _patch_theme_json(blob: bytes, bg: str, text: str,
-                      light_bg=None, light_text=None):
-    """Same-length color swap inside one Dark Reader theme JSON blob.
 
-    Returns (new_blob, n_dark_bg, n_dark_text, n_light_bg, n_light_text).
+def requested_fields(bg=None, text=None, light_bg=None, light_text=None,
+                     mode=None):
+    """Build the {theme field: wanted value} map for the requested subset.
+
+    Anything left as None is simply not touched, so one call can patch the
+    light scheme only, the mode only, or everything at once.
     """
-    new_blob, n1 = re.subn(
-        rb'"darkSchemeBackgroundColor":"#[0-9a-fA-F]{6}"',
-        f'"darkSchemeBackgroundColor":"{bg}"'.encode(), blob, count=1)
-    new_blob, n2 = re.subn(
-        rb'"darkSchemeTextColor":"#[0-9a-fA-F]{6}"',
-        f'"darkSchemeTextColor":"{text}"'.encode(), new_blob, count=1)
-    n3 = n4 = 0
-    if light_bg:
-        new_blob, n3 = re.subn(
-            rb'"lightSchemeBackgroundColor":"#[0-9a-fA-F]{6}"',
-            f'"lightSchemeBackgroundColor":"{light_bg}"'.encode(),
-            new_blob, count=1)
-    if light_text:
-        new_blob, n4 = re.subn(
-            rb'"lightSchemeTextColor":"#[0-9a-fA-F]{6}"',
-            f'"lightSchemeTextColor":"{light_text}"'.encode(),
-            new_blob, count=1)
+    req = {}
+    for key, val in ((BG_KEY, bg), (TX_KEY, text), (LBG_KEY, light_bg),
+                     (LTX_KEY, light_text), (MODE_KEY, mode)):
+        if val is not None:
+            req[key] = val
+    return req
+
+
+def fmt_fields(fields: dict) -> str:
+    """Human readable `bg=#.. text=#.. mode=0` for a field map."""
+    return " ".join(f"{FIELD_SHORT[k]}={fields[k]}"
+                    for k in THEME_FIELDS
+                    if k in fields and fields[k] is not None)
+
+
+def _field_pattern(key: str) -> bytes:
+    """Same-length matcher for one theme field (offline patch constraint)."""
+    if key == MODE_KEY:
+        return rb'"mode":[0-9]'
+    return rb'"' + key.encode() + rb'":"#[0-9a-fA-F]{6}"'
+
+
+def _field_replacement(key: str, value) -> bytes:
+    """Same-length replacement for one theme field."""
+    if key == MODE_KEY:
+        return f'"{key}":{value}'.encode()
+    return f'"{key}":"{value}"'.encode()
+
+
+def _patch_theme_json(blob: bytes, req: dict):
+    """Same-length field swap inside one Dark Reader theme JSON blob.
+
+    Only fields present in `req` are touched. Returns (new_blob, missing)
+    where `missing` lists requested fields that were not found in this blob
+    (nothing is written for those, and the caller decides how to report).
+    """
+    new_blob = blob
+    missing = []
+    for key, value in req.items():
+        new_blob, n = re.subn(_field_pattern(key),
+                              _field_replacement(key, value),
+                              new_blob, count=1)
+        if n == 0:
+            missing.append(key)
     if len(new_blob) != len(blob):
         raise RuntimeError("length changed during patch (bug): refusing")
-    return new_blob, n1, n2, n3, n4
+    return new_blob, missing
 
 
-def patch_theme_record_colors(data: bytes, bg: str, text: str,
-                              light_bg=None, light_text=None):
-    """Replace colors inside standalone `theme` records only.
+def patch_theme_record_colors(data: bytes, req: dict):
+    """Replace fields inside standalone `theme` records only.
 
-    Returns (new_data, n_records_touched, ranges).
-    customThemes inner entries are NOT touched: we only edit JSON blobs that
-    immediately follow the THEME_KEY marker (the global theme value).
+    Returns (new_data, n_records_touched, ranges, missing) where `ranges`
+    are the byte spans that changed and `missing` the requested fields that
+    no record contained. customThemes inner entries are NOT touched: we only
+    edit JSON blobs that immediately follow the THEME_KEY marker (the global
+    theme value).
     """
     out = bytearray(data)
     touched = 0
     ranges = []
+    missing = set()
     search_from = 0
     while True:
         i = bytes(out).find(THEME_KEY, search_from)
@@ -267,16 +329,16 @@ def patch_theme_record_colors(data: bytes, bg: str, text: str,
             continue
         jend = tail + len(b'"useFont":false}')
         blob = bytes(out[j:jend])
-        new_blob2, n1, n2, _, _ = _patch_theme_json(
-            blob, bg, text, light_bg, light_text)
-        if (n1, n2) != (1, 1):
+        new_blob, absent = _patch_theme_json(blob, req)
+        if absent:                    # never half-patch a record
+            missing.update(absent)
             search_from = i + 1
             continue
-        out[j:jend] = new_blob2
+        out[j:jend] = new_blob
         touched += 1
         ranges.append((j, jend))
         search_from = jend
-    return bytes(out), touched, ranges
+    return bytes(out), touched, ranges, missing
 
 
 # --------------------------------------------------------------------------
@@ -286,21 +348,32 @@ def patch_theme_record_colors(data: bytes, bg: str, text: str,
 # (write buffer) fills - a log-only patch then silently does nothing.
 # --------------------------------------------------------------------------
 
-BG_RE = re.compile(rb'"darkSchemeBackgroundColor":"(#[0-9a-fA-F]{6})"')
-TX_RE = re.compile(rb'"darkSchemeTextColor":"(#[0-9a-fA-F]{6})"')
+FIELD_RE = {key: re.compile((r'"' + key + r'":"(#[0-9a-fA-F]{6})"').encode())
+            for key in THEME_FIELDS if key != MODE_KEY}
+MODE_FIELD_RE = re.compile(rb'"mode":([0-9])')
 TABLE_MAGIC = 0xDB4775248B80FB57
 K_TYPE_VALUE = 1
 K_TYPE_DELETION = 0
 
 
-def colors_of(value):
-    """(bg, text) of a theme JSON value, or None if not parseable."""
+def field_of(value, key):
+    """Effective value of ONE Dark Reader theme field, or None.
+
+    None means 'not present / not parseable', which is deliberately not the
+    same as a value that merely differs from what we asked for.
+    """
     if not value:
         return None
-    b, t = BG_RE.search(value), TX_RE.search(value)
-    if not b or not t:
-        return None
-    return b.group(1).decode().lower(), t.group(1).decode().lower()
+    if key == MODE_KEY:
+        m = MODE_FIELD_RE.search(value)
+        return int(m.group(1)) if m else None
+    m = FIELD_RE[key].search(value)
+    return m.group(1).decode().lower() if m else None
+
+
+def fields_of(value, req):
+    """{key: effective value} for the keys in `req` (None where absent)."""
+    return {k: field_of(value, k) for k in req}
 
 
 def _varint(buf, i):
@@ -817,8 +890,7 @@ def find_extension_target(targets):
     return cands[0]
 
 
-def apply_live(bg: str, text: str, port: int, light_bg=None, light_text=None,
-               dry_run=False):
+def apply_live(req: dict, port: int, dry_run=False):
     targets = cdp_targets(port)
     tgt = find_extension_target(targets)
     if not tgt:
@@ -826,12 +898,7 @@ def apply_live(bg: str, text: str, port: int, light_bg=None, light_text=None,
             f"Dark Reader target ({EXT_ID}) not found among "
             f"{len(targets)} debugger targets. Is the extension installed "
             "and enabled in this profile?")
-    patch = {"darkSchemeBackgroundColor": bg, "darkSchemeTextColor": text}
-    if light_bg:
-        patch["lightSchemeBackgroundColor"] = light_bg
-    if light_text:
-        patch["lightSchemeTextColor"] = light_text
-    expr = LIVE_JS.replace("__PATCH__", json.dumps(patch))
+    expr = LIVE_JS.replace("__PATCH__", json.dumps(req))
     if dry_run:
         return {"dry_run": True,
                 "target": {k: tgt.get(k) for k in ("type", "url", "title")}}
@@ -851,8 +918,7 @@ def _backup_log(log: Path, entry: dict, do_backup: bool):
         entry["backup"] = str(bak)
 
 
-def _patch_log_in_place(log: Path, bg, text, light_bg, light_text,
-                        dry_run, do_backup):
+def _patch_log_in_place(log: Path, req, dry_run, do_backup):
     """Same-length patch of theme records already inside a .log file."""
     ok, bad = verify_log_checksums(log)
     if bad and ok == 0:
@@ -860,17 +926,22 @@ def _patch_log_in_place(log: Path, bg, text, light_bg, light_text,
             f"{log}: CRC self-check failed ({bad} bad, {ok} ok) -- "
             "refusing to patch (would corrupt). Use --method live.")
     raw = log.read_bytes()
-    new_data, touched, ranges = patch_theme_record_colors(
-        raw, bg, text, light_bg, light_text)
+    new_data, touched, ranges, missing = patch_theme_record_colors(raw, req)
     entry = {"file": str(log), "crc_ok": ok, "crc_bad": bad,
              "theme_records": touched}
+    if missing:
+        entry["missing"] = [FIELD_SHORT[k] for k in sorted(missing)]
     if touched == 0:
-        entry["status"] = ("no patchable theme JSON in this log; "
-                           "append an override record instead")
+        entry["status"] = (
+            "no patchable theme JSON in this log"
+            + (f" (no {', '.join(entry['missing'])} field found)"
+               if missing else "")
+            + "; append an override record instead")
         entry["fallback_append"] = True
         return entry
     if dry_run:
-        entry["status"] = f"would patch {touched} record(s) -> {bg}/{text}"
+        entry["status"] = (f"would patch {touched} record(s) -> "
+                           f"{fmt_fields(req)}")
         return entry
     _backup_log(log, entry, do_backup)
     log.write_bytes(new_data)
@@ -878,13 +949,12 @@ def _patch_log_in_place(log: Path, bg, text, light_bg, light_text,
     ok2, bad2 = verify_log_checksums(log)
     entry["repaired_headers"] = fixed
     entry["verify_after"] = {"ok": ok2, "bad": bad2}
-    entry["status"] = (f"patched {touched} record(s) -> {bg}/{text}"
+    entry["status"] = (f"patched {touched} record(s) -> {fmt_fields(req)}"
                        if bad2 == 0 else "PATCHED BUT CRC STILL BAD")
     return entry
 
 
-def _append_override(d: Path, eff, scan, bg, text, light_bg, light_text,
-                     dry_run, do_backup):
+def _append_override(d: Path, eff, scan, req, dry_run, do_backup):
     """The winning `theme` record lives in an .ldb SSTable (which offline
     patching cannot edit): append a newer record to the current .log."""
     logf = current_log_file(d, scan.get("manifest_log_number"))
@@ -893,27 +963,27 @@ def _append_override(d: Path, eff, scan, bg, text, light_bg, light_text,
                 "status": f"cannot append override: no writable .log in "
                           f"{d} (winner: {eff['file'].name} seq={eff['seq']})"
                           " -- use --method live"}
-    new_value, n1, n2, _, _ = _patch_theme_json(eff["value"], bg, text,
-                                                light_bg, light_text)
-    if (n1, n2) != (1, 1):
+    new_value, missing = _patch_theme_json(eff["value"], req)
+    if missing:
         return {"file": str(d),
                 "status": f"cannot append override: stored theme JSON in "
-                          f"{eff['file'].name} has no patchable color fields"
-                          " -- use --method live"}
+                          f"{eff['file'].name} has no patchable "
+                          f"{', '.join(FIELD_SHORT[k] for k in missing)} "
+                          "field(s) -- use --method live"}
     new_seq = int(scan.get("max_seq") or 0) + 1
     entry = {"file": str(logf)}
     old = f"{eff['file'].name} seq={eff['seq']}"
     if dry_run:
         entry["status"] = (f"would append override theme record "
-                           f"(seq={new_seq}) -> {bg}/{text}; winning value "
-                           f"is in {old} (.ldb SSTables cannot be edited "
-                           f"in place)")
+                           f"(seq={new_seq}) -> {fmt_fields(req)}; winning "
+                           f"value is in {old} (.ldb SSTables cannot be "
+                           f"edited in place)")
         return entry
     _backup_log(logf, entry, do_backup)
     nbytes = append_theme_record(logf, new_value, new_seq)
     entry["status"] = (f"appended override theme record ({nbytes} bytes, "
-                       f"seq={new_seq}) -> {bg}/{text}; stale value was in "
-                       f"{old} (offline patch cannot edit .ldb SSTables)")
+                       f"seq={new_seq}) -> {fmt_fields(req)}; stale value was "
+                       f"in {old} (offline patch cannot edit .ldb SSTables)")
     ok, bad = verify_log_checksums(logf)
     entry["verify_after"] = {"ok": ok, "bad": bad}
     if bad:
@@ -921,9 +991,8 @@ def _append_override(d: Path, eff, scan, bg, text, light_bg, light_text,
     return entry
 
 
-def apply_offline(bg: str, text: str, profile=DEFAULT_PROFILE, data_dir=None,
-                  light_bg=None, light_text=None, dry_run=False,
-                  do_backup=True):
+def apply_offline(req: dict, profile=DEFAULT_PROFILE, data_dir=None,
+                  dry_run=False, do_backup=True):
     if not dry_run and chromium_running():
         raise RuntimeError(
             "chromium is RUNNING. Offline patching while it runs will be "
@@ -944,7 +1013,7 @@ def apply_offline(bg: str, text: str, profile=DEFAULT_PROFILE, data_dir=None,
     sync_on = scans.get("local", {}).get("sync_settings") == b"true"
     required = "sync" if sync_on else "local"
 
-    report = {"files": [], "verify": [], "required": required,
+    report = {"files": [], "verify": [], "warnings": [], "required": required,
               "ldb_warning": False}
     for kind, d in present.items():
         scan = scans[kind]
@@ -962,25 +1031,26 @@ def apply_offline(bg: str, text: str, profile=DEFAULT_PROFILE, data_dir=None,
                  "status": f"theme record is DELETED in {src}; nothing "
                            f"to patch"})
             continue
-        have = colors_of(eff["value"])
-        if have == (bg, text):
+        have = fields_of(eff["value"], req)
+        if have == req:
+            eff_mode = field_of(eff["value"], MODE_KEY)
+            mode_note = (f", mode={MODE_NAME.get(eff_mode, eff_mode)}"
+                         if MODE_KEY not in have and eff_mode is not None
+                         else "")
             report["files"].append(
                 {"file": str(d),
-                 "status": f"already up to date ({have[0]}/{have[1]} "
-                           f"in {src})"})
+                 "status": f"already up to date ({fmt_fields(have)}"
+                           f"{mode_note} in {src})"})
             continue
         if eff["in"] == "log":
-            entry = _patch_log_in_place(eff["file"], bg, text, light_bg,
-                                        light_text, dry_run, do_backup)
+            entry = _patch_log_in_place(eff["file"], req, dry_run, do_backup)
             report["files"].append(entry)
             if entry.pop("fallback_append", False):
                 report["files"].append(
-                    _append_override(d, eff, scan, bg, text, light_bg,
-                                     light_text, dry_run, do_backup))
+                    _append_override(d, eff, scan, req, dry_run, do_backup))
         else:
             report["files"].append(
-                _append_override(d, eff, scan, bg, text, light_bg,
-                                 light_text, dry_run, do_backup))
+                _append_override(d, eff, scan, req, dry_run, do_backup))
 
     if dry_run:
         report["ldb_warning"] = any(d.glob("*.ldb") for d in present.values())
@@ -990,29 +1060,50 @@ def apply_offline(bg: str, text: str, profile=DEFAULT_PROFILE, data_dir=None,
     # one we wanted - this is what catches "patch silently did nothing".
     for kind, d in present.items():
         eff = effective_theme(scan_theme_records(d))
-        got = colors_of(eff["value"]) if eff and eff["value"] else None
-        if got and all(got):
+        got = fields_of(eff["value"], req) if eff and eff["value"] else None
+        if got and all(v is not None for v in got.values()):
+            eff_mode = field_of(eff["value"], MODE_KEY)
             report["verify"].append(
-                f"{kind}: effective theme = {got[0]}/{got[1]} "
-                f"(from {eff['file'].name} seq={eff['seq']})")
+                f"{kind}: effective theme = {fmt_fields(got)}"
+                + (f" (mode={MODE_NAME.get(eff_mode, eff_mode)})"
+                   if eff_mode is not None else "")
+                + f" (from {eff['file'].name} seq={eff['seq']})")
         else:
             report["verify"].append(
                 f"{kind}: effective theme = MISSING "
                 f"(from {eff['file'].name if eff else 'nowhere'})")
-        if kind == required and got != (bg, text):
+        if kind == required and got != req:
             held = (f"{eff['file'].name} seq={eff['seq']}" if eff else "nowhere")
             if eff and eff["value"] is None:
                 detail = f"the theme record is DELETED in {held}"
-            elif got and all(got):
-                detail = f"it is {got[0]}/{got[1]}, held in {held}"
+            elif got and all(v is not None for v in got.values()):
+                detail = f"it is {fmt_fields(got)}, held in {held}"
             else:
                 detail = f"no theme record exists (last seen: {held})"
             raise RuntimeError(
                 f"Dark Reader's effective theme does not match "
-                f"{bg}/{text}: {detail}.\nThe offline patch could not "
+                f"{fmt_fields(req)}: {detail}.\nThe offline patch could not "
                 "override it (a compressed .ldb SSTable may win).\n"
                 "Fix: run again, or use --method live (start chromium with "
                 "--remote-debugging-port=9222).")
+        if kind == required:
+            # Colours written for a scheme that is not the active one have no
+            # effect - say so instead of silently doing nothing visible.
+            eff_mode = field_of(eff["value"], MODE_KEY) if eff and \
+                eff["value"] else None
+            light_only = (LBG_KEY in req or LTX_KEY in req) and \
+                BG_KEY not in req and MODE_KEY not in req
+            if light_only and eff_mode == 1:
+                report["warnings"].append(
+                    "light colours were written but Dark Reader is still in "
+                    "DARK mode (mode=1), so they have NO effect - rerun with "
+                    "--mode light (which also needs --light-text)")
+            elif (BG_KEY in req and TX_KEY in req) and MODE_KEY not in req \
+                    and eff_mode == 0:
+                report["warnings"].append(
+                    "dark colours were written but Dark Reader is in LIGHT "
+                    "mode (mode=0), so they have NO effect - rerun with "
+                    "--mode dark")
     return report
 
 
@@ -1039,15 +1130,29 @@ def build_parser():
   scheme lookup: --scheme reads your color-schemes.drconf DARK section:
        %(prog)s --scheme "Osaka Jade Bamboo"   # uses #111c18 / #c1c497
        %(prog)s --list                          # show known scheme names
+
+  dark vs light scheme (--mode):
+    Dark Reader keeps TWO colour pairs in its `theme` record and `mode`
+    decides which one the page gets:  mode=1 dark -> darkScheme*,
+    mode=0 light -> lightScheme*. Colours alone never switch the mode, so
+    a light palette must be written together with the mode that uses it:
+       %(prog)s --mode light --light-bg "#dfe4c4" --light-text "#1c2d28"
+       %(prog)s --mode dark  --bg "$BG" --text "$FG"
+    Omit --mode to only retune colours; the script warns you afterwards if
+    the scheme you wrote is not the active one.
 """)
     src = ap.add_mutually_exclusive_group()
     src.add_argument("--bg", help="dark background hex, e.g. #111c18")
     src.add_argument("--scheme",
                      help='scheme name from --list (e.g. "Gruvbox")')
     ap.add_argument("--text", help="dark text hex, e.g. #c1c497")
-    ap.add_argument("--light-bg", default=None, help="optional light bg hex")
-    ap.add_argument("--light-text", default=None,
-                    help="optional light text hex")
+    ap.add_argument("--light-bg", default=None, help="light bg hex")
+    ap.add_argument("--light-text", default=None, help="light text hex")
+    ap.add_argument("--mode", choices=["dark", "light"], default=None,
+                    help="which colour scheme Dark Reader uses: dark writes "
+                         "theme.mode=1 (needs --bg/--text), light writes "
+                         "theme.mode=0 (needs --light-bg/--light-text). "
+                         "Omit to leave the current mode untouched.")
     ap.add_argument("--list", action="store_true",
                     help="list schemes in the .drconf and exit")
     ap.add_argument("--drconf", default=str(Path.home() /
@@ -1099,19 +1204,33 @@ def main(argv=None):
         if not bg or not text:
             print(f"scheme {a.scheme!r} has no DARK colors", file=sys.stderr)
             return 2
+        light_bg = light_text = None     # a .drconf scheme only has dark cols
     else:
         bg, text = a.bg, a.text
-        if not bg or not text:
-            ap.error("--bg and --text are required (or use --scheme)")
+        light_bg, light_text = a.light_bg, a.light_text
+
+    # --mode must come with the colours of the scheme it activates: telling
+    # Dark Reader to go light while leaving lightScheme* at its defaults is
+    # never what the user meant.
+    mode = MODE_VALUE[a.mode] if a.mode else None
+    if mode == MODE_VALUE["light"] and not (light_bg and light_text):
+        ap.error("--mode light requires --light-bg and --light-text")
+    if mode == MODE_VALUE["dark"] and not (bg and text):
+        ap.error("--mode dark requires --bg and --text")
 
     try:
-        bg = normalize_hex(bg)
-        text = normalize_hex(text)
-        light_bg = normalize_hex(a.light_bg) if a.light_bg else None
-        light_text = normalize_hex(a.light_text) if a.light_text else None
+        bg = normalize_hex(bg) if bg else None
+        text = normalize_hex(text) if text else None
+        light_bg = normalize_hex(light_bg) if light_bg else None
+        light_text = normalize_hex(light_text) if light_text else None
     except ValueError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
+
+    req = requested_fields(bg, text, light_bg, light_text, mode)
+    if not req:
+        ap.error("nothing to do: pass --bg/--text, --light-bg/--light-text, "
+                 "--scheme, or --mode")
 
     method = a.method
     if method == "auto":
@@ -1125,18 +1244,25 @@ def main(argv=None):
 
     try:
         if method == "live":
-            res = apply_live(bg, text, a.port, light_bg, light_text,
-                             dry_run=a.dry_run)
+            res = apply_live(req, a.port, dry_run=a.dry_run)
             if a.dry_run:
                 print(f"[dry-run] would set via {res['target']}: "
-                      f"bg={bg} text={text}")
+                      f"{fmt_fields(req)}")
             else:
-                print(f"Dark Reader updated live: bg={bg} text={text} -> {res}")
+                print(f"Dark Reader updated live: {fmt_fields(req)} -> {res}")
                 print("Open tabs re-theme automatically; if a tab looks stale, "
                       "reload it.")
+                eff_mode = res.get("mode") if isinstance(res, dict) else None
+                if eff_mode == 1:
+                    print("NOTE: Dark Reader is in DARK mode, so the dark* "
+                          "colours are the ones in use.", file=sys.stderr)
+                elif eff_mode == 0:
+                    print("NOTE: Dark Reader is in LIGHT mode, so the "
+                          "light* colours are the ones in use.",
+                          file=sys.stderr)
         else:
-            rep = apply_offline(bg, text, a.profile, a.chrome_data, light_bg,
-                                light_text, dry_run=a.dry_run,
+            rep = apply_offline(req, a.profile, a.chrome_data,
+                                dry_run=a.dry_run,
                                 do_backup=not a.no_backup)
             for f in rep["files"]:
                 print(f"{f['file']}: {f['status']}"
@@ -1144,6 +1270,8 @@ def main(argv=None):
                          if f.get("backup") else ""))
             for line in rep.get("verify", []):
                 print(f"verify: {line}")
+            for line in rep.get("warnings", []):
+                print(f"warning: {line}", file=sys.stderr)
             if rep.get("ldb_warning"):
                 print("NOTE: *.ldb SSTable files present; --dry-run cannot "
                       "verify which value wins. Run without --dry-run to "
