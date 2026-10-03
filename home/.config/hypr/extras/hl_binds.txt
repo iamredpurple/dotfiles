@@ -27,6 +27,7 @@ SUPER + CTRL + W                Launch Wifi (Impala)
 SUPER + CTRL + B                Launch Bluetooth (Bluetui)
 SUPER + CTRL + T                Launch Task Manager (Btop++)
 SUPER + CTRL + A                Launch Audio Manager (Wiremix)
+SUPER + CTRL + V                Launch VPN (Proton VPN)
 SUPER + SHIFT + M               Launch Music Player (Rmpc)
 SUPER + ESCAPE                  Launch Power Options Menu
 PRINT                           Screenshot to Clipboard

@@ -5,7 +5,7 @@
 # What it does (in order):
 #   1. Installs packages        (packages/official.txt via pacman, packages/aur.txt via yay)
 #   2. Copies config files      (home/  ->  $HOME, old files are backed up)
-#   3. Fixes old /home/sk paths (rewritten to the new user's home)
+#   3. Fixes old $HOME paths (rewritten to the new user's home)
 #   4. Installs the SDDM theme  (gruv-sddm + /etc/sddm.conf.d/theme.conf)
 #   5. Enables services
 #
@@ -13,16 +13,13 @@
 #   ./install.sh                 # asks for username and confirmation
 #   ./install.sh --dry-run       # only prints what would happen, touches nothing
 #   ./install.sh --yes           # no confirmation question
-#   DOTFILES_USER=alice ./install.sh --yes   # non-interactive, pick the username
-#
-# Symlinks need no fixing: every symlink inside home/ is stored RELATIVE,
-# so it works with any username on any machine.
+#   DOTFILES_USER=sk ./install.sh --yes   # non-interactive, pick the username
 
 set -euo pipefail
 
 REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$REPO_DIR/home"
-OLD_HOME="/home/sk" # home of the machine this setup was captured from
+OLD_HOME="/home/sk"
 
 DRY_RUN=0
 ASSUME_YES=0

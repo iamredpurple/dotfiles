@@ -14,14 +14,15 @@ alias pyy='deactivate'
 #lsd alias
 alias ls='lsd --sort extension --color=auto'
 
-#keyboard light alias
-alias rgb='python ~/.rgb/keyboard.py'
+#keyboard light alias - use this for your own keyboard lighting if exists/possible
+#alias rgb='python ~/.rgb/keyboard.py'
 
 #video download
 alias vid='yt-dlp --cookies-from-browser chromium -S "res:1080" --embed-thumbnail -P "~/Videos" -o "%(title)s.%(ext)s"'
 
 #audio download
-alias aud='$HOME/.python-env/bin/spotdl --output "$HOME/Music/Unsorted/{title}"'
+#use this if you devide to use spotdl...change venv path
+#alias aud='$HOME/.python-env/bin/spotdl --output "$HOME/Music/Unsorted/{title}"'
 
 alias ff="fastfetch"
 alias ff!="fastfetch --logo none"
