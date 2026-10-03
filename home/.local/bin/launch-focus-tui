@@ -1,22 +1,96 @@
 #!/usr/bin/env bash
 
-APP=$1
-
-if [ -z "$APP" ]; then
-  echo "Usage: $0 <app-name>"
-  exit 1
-fi
+# launch-focus-tui [-t|--title <name>] <command> [args...]
+#
+# Focuses an already open floating TUI window if there is one, otherwise
+# launches <command> in a new floating kitty window.
+#
+#   launch-focus-tui btop
+#   launch-focus-tui sudo pvpn
+#   launch-focus-tui wiremix -v
+#   launch-focus-tui -t vpn sudo -n pvpn
+#
+# The window title (also used to find an existing window) defaults to the
+# command name: the first argument that is neither an option nor a known
+# wrapper such as sudo. Override it with -t/--title.
 
 CLASS="tui-float"
 
-CLIENT_DATA=$(hyprctl clients -j | jq -r ".[] | select(.class == \"$CLASS\" and (.title | ascii_downcase | contains(\"${APP,,}\")))")
+# Wrappers that take another command; skipped when guessing the title.
+WRAPPERS=(sudo doas env command exec nice ionice chrt taskset stdbuf
+          unbuffer nohup setsid time watch)
 
-if [ ! -z "$CLIENT_DATA" ]; then
-  WORKSPACE_ID=$(echo "$CLIENT_DATA" | jq -r '.workspace.id')
-  ADDR=$(echo "$CLIENT_DATA" | jq -r '.address')
+die() { echo "$*" >&2; exit 1; }
 
-  hyprctl eval "hl.dispatch(hl.dsp.focus({ workspace = '$WORKSPACE_ID' }))"
+# POSIX-safe single word quoting, safe for /bin/sh -c style invocation.
+shquote() {
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+TITLE=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -t|--title)
+      [ $# -ge 2 ] || die "$1 requires an argument"
+      TITLE="$2"
+      shift 2
+      ;;
+    --) shift; break ;;
+    -*) die "unknown option: $1 (use -- before the command if it starts with -)" ;;
+    *) break ;;
+  esac
+done
+
+[ $# -gt 0 ] || die "Usage: $0 [-t|--title <name>] <command> [args...]"
+
+CMD=("$@")
+
+if [ -z "$TITLE" ]; then
+  for arg in "${CMD[@]}"; do
+    base="${arg##*/}"
+    case "$base" in
+      -*) continue ;;
+    esac
+    skip=false
+    for w in "${WRAPPERS[@]}"; do
+      if [ "$base" = "$w" ]; then skip=true; break; fi
+    done
+    [ "$skip" = true ] && continue
+    TITLE="$base"
+    break
+  done
+fi
+
+[ -n "$TITLE" ] || die "could not guess a title from '$*', pass one with --title"
+
+NEEDLE="${TITLE,,}"
+
+CLIENT_DATA=$(hyprctl clients -j | jq -r \
+  --arg cls "$CLASS" --arg needle "$NEEDLE" \
+  'first(.[] | select(.class == $cls
+                     and ((.title // "") | ascii_downcase | contains($needle))))
+   | select(. != null)
+   | [.address, (.workspace.id | tostring)] | @tsv')
+
+if [ -n "$CLIENT_DATA" ]; then
+  ADDR=${CLIENT_DATA%%	*}
+  WS=${CLIENT_DATA##*	}
+
+  hyprctl eval "hl.dispatch(hl.dsp.focus({ workspace = '$WS' }))"
   hyprctl eval "hl.dispatch(hl.dsp.focus({ window = 'address:$ADDR' }))"
 else
-  hyprctl dispatch "hl.dsp.exec_cmd('kitty --class=$CLASS -T $APP -e $APP')"
+  LAUNCH="kitty --class=$(shquote "$CLASS") --title=$(shquote "$TITLE")"
+  for arg in "${CMD[@]}"; do
+    LAUNCH+=" $(shquote "$arg")"
+  done
+  # hl.dsp.exec_cmd() takes a single-quoted Lua string: escape backslashes and
+  # quotes for that layer only.
+  LAUNCH=${LAUNCH//\\/\\\\}
+  LAUNCH=${LAUNCH//\'/"\\'"}
+
+  # Keep a keystroke from spawning two windows.
+  LOCK=/tmp/.launch-focus-tui.lock
+  ( flock -n 9 || exit 0
+    hyprctl dispatch "hl.dsp.exec_cmd('$LAUNCH')"
+    sleep 0.4 ) 9>"$LOCK"
 fi

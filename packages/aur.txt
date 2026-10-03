@@ -28,3 +28,5 @@ yaru-icon-theme
 # --- misc tools used by the setup ---
 downgrade
 zscroll-git
+pvpn-go
+wireguard-tools
