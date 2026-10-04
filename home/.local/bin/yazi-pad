@@ -1,20 +1,137 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""Switch the yazi indicator padding style between theme variants.
 
-import sys, os
-import subprocess
-try:
+yazi-pad <theme-name>
+
+"""
+
+import os
+import shutil
+import sys
+
+HOME = os.path.expanduser("~")
+THEME_TOML = os.path.join(HOME, ".config", "yazi", "theme.toml")
+INDICATOR = "[indicator]"
+
+# Themes that use rounded rmpc/waybar bars get the block padding.
+ROUNDED_THEMES = ("tokyonight", "cybermesh", "protocol", "bamboo", "energy")
+
+# The padding used by the plain themes.
+PADDING_BLOCK = '{ open = "█", close = "█" }'
+
+
+def split_sections(text):
+    """Split a TOML document into (preamble_lines, [(name, lines), ...]).
+
+    `preamble` holds comments/blank lines that appear before the first section
+    header, so section order and surrounding comments survive a round-trip.
+    """
+    preamble, sections, current = [], [], None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            current = (stripped, [])
+            sections.append(current)
+        elif current is None:
+            preamble.append(line)
+        else:
+            current[1].append(line)
+    return preamble, sections
+
+
+def is_padding_line(line):
+    """Match `padding = ...` and the quoted `"padding" = ...` form yazi uses."""
+    s = line.strip()
+    if "=" not in s:
+        return False
+    key = s.split("=", 1)[0].strip().strip('"').strip("'")
+    return key == "padding"
+
+
+def is_real_key(line):
+    """A TOML key line: not blank, not a comment."""
+    s = line.strip()
+    return bool(s) and not s.startswith("#")
+
+
+def set_padding(text, padding):
+    """Add/replace/remove [indicator] padding, preserving all other content."""
+    preamble, sections = split_sections(text)
+
+    kept = []
+    for name, lines in sections:
+        if name != INDICATOR:
+            kept.append((name, lines))
+            continue
+        # Keep any non-padding keys the user may have added.
+        rest = [ln for ln in lines if not is_padding_line(ln)]
+        if padding:
+            rest = [f'"padding" = {padding}'] + rest
+        # Drop the section only if nothing at all is left. Comments are kept so
+        # a generated block parked here is never silently destroyed.
+        if any(is_real_key(ln) for ln in rest) or any(ln.strip() for ln in rest):
+            kept.append((name, rest))
+
+    if padding and not any(n == INDICATOR for n, _ in kept):
+        kept.insert(0, (INDICATOR, [f'"padding" = {padding}']))
+
+    out = "\n".join(preamble).rstrip("\n")
+    if out:
+        out += "\n\n"
+    for i, (name, lines) in enumerate(kept):
+        out += name + "\n" + "\n".join(lines).rstrip("\n") + "\n"
+        if i != len(kept) - 1:
+            out += "\n"
+    return out
+
+
+def main():
+    if len(sys.argv) != 2:
+        sys.exit(__doc__)
+
     theme = sys.argv[1]
-    home = os.path.expanduser("~")
-    
-    with open(home + "/.config/yazi/theme.toml", "w") as f:
-      if theme in ("tokyonight", "cybermesh", "protocol", "bamboo"):
-        f.write("")
-        subprocess.run("\cp -r ~/.config/rmpc-rounded/. ~/.config/rmpc", shell=True)
-        subprocess.run("\cp -r ~/.config/waybar/bars/bar1/. ~/.config/waybar/", shell=True)
-      else:
-        f.write("[indicator]\n\"padding\" = { open = \"█\", close = \"█\" }")
-        subprocess.run("\cp -r ~/.config/rmpc-plain/. ~/.config/rmpc", shell=True)
-        subprocess.run("\cp -r ~/.config/waybar/bars/bar2/. ~/.config/waybar/", shell=True)
-except:
-    sys.exit("Usage: yazi-pad <theme-name>")
+    rounded = theme in ROUNDED_THEMES
 
+    current = ""
+    if os.path.exists(THEME_TOML):
+        with open(THEME_TOML, encoding="utf-8") as fh:
+            current = fh.read()
+
+    # Rounded-bar themes get no padding override (yazi falls back to its default
+    # padding); every other theme gets the block padding. Same as the original.
+    updated = set_padding(current, None if rounded else PADDING_BLOCK)
+
+    with open(THEME_TOML, "w", encoding="utf-8") as fh:
+        fh.write(updated)
+
+    try:
+        import tomllib
+        with open(THEME_TOML, "rb") as fh:
+            data = tomllib.load(fh)
+        icon_rules = sum(len(v) for v in data.get("icon", {}).values()
+                         if isinstance(v, list))
+        print(f"yazi-pad: theme={theme} padding={'block' if rounded else 'default'} "
+              f"icon_rules={icon_rules}")
+        if icon_rules == 0:
+            print("yazi-pad: WARNING - theme.toml has no [icon] rules; run "
+                  "~/.config/yazi/regen-icons.py", file=sys.stderr)
+    except Exception as exc:  # noqa: BLE001 - never leave the user without output
+        print(f"yazi-pad: could not verify theme.toml: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    # Mirror the bar style into rmpc and waybar, as before.
+    bar = "bar1" if rounded else "bar2"
+    for src, dst in (
+        (os.path.join(HOME, ".config", "rmpc-rounded" if rounded else "rmpc-plain"),
+         os.path.join(HOME, ".config", "rmpc")),
+        (os.path.join(HOME, ".config", "waybar", "bars", bar),
+         os.path.join(HOME, ".config", "waybar")),
+    ):
+        if os.path.isdir(src):
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+        else:
+            print(f"yazi-pad: missing source dir {src}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
