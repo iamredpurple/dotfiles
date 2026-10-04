@@ -1,0 +1,29 @@
+/* ==UserStyle==
+@name         System UI Everywhere (Icon Safe)
+@version      1.0.0
+@description  Force system-ui on page text, leave icon fonts and code blocks alone
+==/UserStyle== */
+
+*:not(
+  i,
+  [data-icon],
+  [class*="icon" i],
+  [class*="glyphicon" i],
+  [class*="material" i],
+  [class*="symbol" i],
+  [class*="glyph" i],
+  [class~="fa"], [class~="fas"], [class~="far"], [class~="fab"], [class~="fal"],
+  [class*="fa-" i],
+  [class*="mdi-" i],
+  [class*="ion-" i],
+  [class*="bi-" i],
+  [class*="octicon" i],
+  [style*="font-family" i],
+  code, pre, kbd, samp
+) {
+  font-family: system-ui, "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important;
+}
+
+code, pre, kbd, samp {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace !important;
+}
