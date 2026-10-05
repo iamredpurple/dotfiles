@@ -55,7 +55,7 @@ dot-files/
 
 ---
 
-## What was automatically created and might need manual tweaking
+## What might need manual tweaking:
 
 **User data / profiles:**
 
