@@ -44,7 +44,6 @@ hl.layer_rule({
 	match = { namespace = "walker" },
 	blur = true,
 	ignore_alpha = 0.1,
-	walker,
 })
 
 hl.layer_rule({

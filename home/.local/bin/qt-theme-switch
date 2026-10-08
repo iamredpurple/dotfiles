@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# qt-theme-switch — applies the Qt/KDE side of a palette
+#
+# Called by ~/.local/bin/theme-change, but works standalone too:
+#     qt-theme-switch <theme-name>
+#
+# What it does:
+#   1. KDE color scheme : kdenlive + every KDE Frameworks app (Qt5 & Qt6,
+#                          one .colors file, no per-version duplication)
+#   2. Kvantum SVG      : copies the per-theme widget-style SVG into place
+#                          (style activation is currently DISABLED - the
+#                          Fusion + KDE scheme looked better; re-enable notes
+#                          are inside this block and in hyprland.lua)
+#
+# Inputs (per theme dir ~/.dotfiles/themes/<name>/):
+#   kde.colors    compiled from theme-compilation/kde.colors.tpl
+#   kvantum.svg   compiled from theme-compilation/kvantum.svg.tpl
+
+if [ -z "$1" ]; then
+  echo "Usage: qt-theme-switch <theme-name>"
+  exit 1
+fi
+
+TARGET_THEME="$1"
+THEME_PATH="$HOME/.dotfiles/themes/$TARGET_THEME"
+
+# --- 1. KDE color scheme (kdenlive + all KDE apps) --------------------------
+if [ -f "$THEME_PATH/kde.colors" ]; then
+  mkdir -p "$HOME/.local/share/color-schemes"
+  SCHEME_DST="$HOME/.local/share/color-schemes/${TARGET_THEME}.colors"
+  cp "$THEME_PATH/kde.colors" "$SCHEME_DST"
+  #scheme display name = theme name (template ships a generic placeholder)
+  sed -i "s/^Name=.*/Name=${TARGET_THEME}/" "$SCHEME_DST"
+  sed -i "s/^ColorScheme=.*/ColorScheme=${TARGET_THEME}/" "$SCHEME_DST"
+  #apply globally + in kdenlive's own config
+  kwriteconfig6 --file kdeglobals --group General --key ColorScheme "$TARGET_THEME"
+  kwriteconfig6 --file kdenliverc --group UiSettings --key ColorScheme "$TARGET_THEME"
+  #Qt does not hot-reload palettes
+  if pgrep -x kdenlive >/dev/null; then
+    notify-send "󰂚 Theme Info" "Restart kdenlive to apply '${TARGET_THEME}' theme" -t 2000
+  fi
+fi
+
+# --- 2. Kvantum widget-style files (dormant) --------------------------------
+# Style activation DISABLED 2026-10-08: kvantum's menu-bar shade + accent icons
+# looked worse than Fusion + the KDE color scheme. Files are kept up to date so
+# re-enabling only needs: uncomment the two kwriteconfig6 lines below AND the
+# QT_STYLE_OVERRIDE line in ~/.config/hypr/hyprland.lua
+if [ -f "$THEME_PATH/kvantum.svg" ] && [ -d "$HOME/.config/Kvantum" ]; then
+  KV_DIR="$HOME/.config/Kvantum/${TARGET_THEME}"
+  mkdir -p "$KV_DIR"
+  cp "$THEME_PATH/kvantum.svg" "$KV_DIR/${TARGET_THEME}.svg"
+  printf '[General]\ntheme=%s\n' "$TARGET_THEME" >"$HOME/.config/Kvantum/kvantum.kvconfig"
+  #kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
+  #kwriteconfig6 --file kdenliverc --group KDE --key widgetStyle kvantum
+fi
+
+exit 0

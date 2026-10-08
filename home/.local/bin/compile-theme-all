@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# compile-theme-all: compile ONE template into EVERY theme directory.
+#
+# Usage:
+#   compile-theme-all kde.colors.tpl      # -> themes/*/kde.colors
+#   compile-theme-all kvantum.svg.tpl     # -> themes/*/kvantum.svg
+
+set -e
+TPL_DIR="$HOME/.dotfiles/theme-compilation"
+THEMES_DIR="$HOME/.dotfiles/themes"
+
+if [ -z "$1" ]; then
+  echo "Usage: compile-theme-all <template.tpl>"
+  echo "Available templates:"
+  ls "$TPL_DIR"/*.tpl | xargs -n1 basename | sed 's/^/  /'
+  exit 1
+fi
+
+TPL="$TPL_DIR/$1"
+[ -f "$TPL" ] || {
+  echo "Error: $TPL not found"
+  exit 1
+}
+
+count=0
+for d in "$THEMES_DIR"/*/; do
+  [ -f "$d/colors.toml" ] || continue
+  python3 "$HOME/.local/bin/compile-theme.py" "$d/colors.toml" "$TPL" "$d/${1%.tpl}"
+  count=$((count + 1))
+done
+echo "Done: '$1' compiled into $count themes."

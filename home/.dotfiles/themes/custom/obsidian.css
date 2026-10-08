@@ -2,72 +2,72 @@
 
 .theme-dark, .theme-light {
   /* Core colors */
-  --background-primary: #1a1111;
-  --background-primary-alt: #1a1111;
-  --background-secondary: #1a1111;
-  --background-secondary-alt: #1a1111;
-  --text-normal: #f1dedd;
+  --background-primary: #101417;
+  --background-primary-alt: #101417;
+  --background-secondary: #101417;
+  --background-secondary-alt: #101417;
+  --text-normal: #e0e3e8;
 
   /* Colors overrides */
   --color-red: #ffb4ab; /*red*/
-  --color-green: #e7bdb9; /*green*/
-  --color-yellow: #e2c28c; /*yellow*/
-  --color-blue: #ffb3ae; /*blue*/
-  --color-orange: #ffdea6;
-  --color-cyan: #ffdad7;
-  --color-pink: #904a46;
-  --color-purple: #904a46; /*magenta*/
+  --color-green: #b7c9d9; /*green*/
+  --color-yellow: #cfc0e8; /*yellow*/
+  --color-blue: #95cdf7; /*blue*/
+  --color-orange: #eaddff;
+  --color-cyan: #d3e5f5;
+  --color-pink: #266489;
+  --color-purple: #266489; /*magenta*/
   
   /* Selection colors */
-  --text-selection: #3d3231;
+  --text-selection: #313539;
 
   /* Border color */
-  --background-modifier-border: #a08c8a;
+  --background-modifier-border: #8b9198;
 
   /* Semantic heading colors */
   --text-title-h1: #ffb4ab;
-  --text-title-h2: #e7bdb9;
-  --text-title-h3: #e2c28c;
-  --text-title-h4: #ffb3ae;
-  --text-title-h5: #ffdad7;
-  --text-title-h6: #904a46;
+  --text-title-h2: #b7c9d9;
+  --text-title-h3: #cfc0e8;
+  --text-title-h4: #95cdf7;
+  --text-title-h5: #d3e5f5;
+  --text-title-h6: #266489;
 
   /* Links and accents */
-  --text-link: #ffb3ae;
-  --text-accent: #ffb3ae;
-  --text-accent-hover: #ffb3ae;
-  --interactive-accent: #ffb3ae;
-  --interactive-accent-hover: #ffb3ae;
+  --text-link: #95cdf7;
+  --text-accent: #95cdf7;
+  --text-accent-hover: #95cdf7;
+  --interactive-accent: #95cdf7;
+  --interactive-accent-hover: #95cdf7;
 
   /* Muted text */
-  --text-muted: color-mix(in srgb, #f1dedd 70%, transparent);
-  --text-faint: color-mix(in srgb, #f1dedd 55%, transparent);
+  --text-muted: color-mix(in srgb, #e0e3e8 70%, transparent);
+  --text-faint: color-mix(in srgb, #e0e3e8 55%, transparent);
 
   /* Code */
-  --code-normal: #ffdad7;
-  --code-background: #271d1d; /*darker or lighter of bg*/
+  --code-normal: #d3e5f5;
+  --code-background: #1c2024; /*darker or lighter of bg*/
   --code-keyword: #ffb4ab;
-  --code-string: #e7bdb9;
-  --code-number: #e2c28c;
-  --code-operator: #ffb3ae;
-  --code-def: #ffb3ae;
-  --code-variable: #e2c28c;
+  --code-string: #b7c9d9;
+  --code-number: #cfc0e8;
+  --code-operator: #95cdf7;
+  --code-def: #95cdf7;
+  --code-variable: #cfc0e8;
 
   /* Errors and success */
   --text-error: #ffb4ab;
   --text-error-hover: #ffb4ab;
-  --text-success: #e7bdb9;
+  --text-success: #b7c9d9;
 
   /* Tags */
-  --tag-color: #ffdad7;
-  --tag-background: #a08c8a;
+  --tag-color: #d3e5f5;
+  --tag-background: #8b9198;
 
   /* Graph */
-  --graph-line: #a08c8a;
-  --graph-node: #ffb3ae;
-  --graph-node-focused: #ffb3ae;
-  --graph-node-tag: #ffdad7;
-  --graph-node-attachment: #e7bdb9;
+  --graph-line: #8b9198;
+  --graph-node: #95cdf7;
+  --graph-node-focused: #95cdf7;
+  --graph-node-tag: #d3e5f5;
+  --graph-node-attachment: #b7c9d9;
 }
 
 /* Headers */
@@ -80,16 +80,16 @@
 
 /* Code blocks */
 .markdown-rendered code {
-  color: #ffdad7;
+  color: #d3e5f5;
 }
 
 /* Syntax highlighting
 .cm-s-obsidian span.cm-keyword { color: #ffb4ab; }
-.cm-s-obsidian span.cm-string { color: #e7bdb9; }
-.cm-s-obsidian span.cm-number { color: #e2c28c; }
-.cm-s-obsidian span.cm-comment { color: #a08c8a; }
-.cm-s-obsidian span.cm-operator { color: #ffb3ae; }
-.cm-s-obsidian span.cm-def { color: #ffb3ae; } */
+.cm-s-obsidian span.cm-string { color: #b7c9d9; }
+.cm-s-obsidian span.cm-number { color: #cfc0e8; }
+.cm-s-obsidian span.cm-comment { color: #8b9198; }
+.cm-s-obsidian span.cm-operator { color: #95cdf7; }
+.cm-s-obsidian span.cm-def { color: #95cdf7; } */
 
 /* Links */
 .markdown-rendered a {
@@ -98,7 +98,7 @@
 
 /* Blockquotes */
 .markdown-rendered blockquote {
-  border-left-color: #ffb3ae;
+  border-left-color: #95cdf7;
 }
 
 /* Active elements */
@@ -117,7 +117,7 @@
 
 /* Callout Tip */
 .callout[data-callout="tip"] {
-  --callout-color: #ffb3ae;
+  --callout-color: #95cdf7;
   --callout-icon: lucide-flame; /*change icon*/
 }
 

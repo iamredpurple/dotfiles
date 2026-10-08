@@ -2,23 +2,32 @@ accent = "#5e81ac"
 cursor = "#1c2d28"
 foreground = "#1c2d28"
 background = "#dfe4c4"
-selection_foreground = "#1c2d28"
-selection_background = "#5e81ac"
 
-color0 = "#dfe4c4" #yellow
-color1 = "#b14752" #red
-color2 = "#556753" #greenish
-color3 = "#dc8164" #orange
-color4 = "#4c6c94" #blue
-color5 = "#8a5b81" #magenta
-color6 = "#3d727d" #cyan
-color7 = "#384f54" #grayish cyan
-color8 = "#7d8794"
-color9 = "#b14752"
-color10 = "#556753"
-color11 = "#dc8164"
-color12 = "#4c6c94"
-color13 = "#8a5b81"
-color14 = "#3d727d"
+selection_foreground = "#1c2d28"
+selection = "#1c2d28"
+bright_foreground = "#1c2d28"
+dark_foreground = "#1c2d28"
+
+selection_background = "#5e81ac"
+darker_background = "#5e81ac"
+dark_background = "#5e81ac"
+lighter_background = "#7d8794"
+
+yellow = "#dfe4c4" #yellow
+red = "#b14752" #red
+green = "#556753" #greenish
+orange = "#dc8164" #orange
+blue = "#4c6c94" #blue
+magenta = "#8a5b81" #magenta
+cyan = "#3d727d" #cyan
+brown = "#384f54" #grayish cyan
+
+muted = "#7d8794"
+bright_red = "#b14752"
+bright_green = "#556753"
+bright_yellow = "#dc8164"
+bright_blue = "#4c6c94"
+bright_magenta = "#8a5b81"
+bright_cyan = "#3d727d"
 color15 = "#1c2d28"
 

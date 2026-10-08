@@ -1,14 +1,14 @@
 /* Core Classic GTK3 Palette Bindings */
-@define-color theme_bg_color #1a1111;
-@define-color theme_fg_color #f1dedd;
-@define-color theme_base_color #1a1111;
-@define-color theme_text_color #f1dedd;
-@define-color theme_selected_bg_color #ffb3ae;
-@define-color theme_selected_fg_color #1a1111;
-@define-color theme_tooltip_bg_color #1a1111;
-@define-color theme_tooltip_fg_color #f1dedd;
-@define-color bright_black #1a1111;
-@define-color black #a08c8a;
+@define-color theme_bg_color #101417;
+@define-color theme_fg_color #e0e3e8;
+@define-color theme_base_color #101417;
+@define-color theme_text_color #e0e3e8;
+@define-color theme_selected_bg_color #95cdf7;
+@define-color theme_selected_fg_color #101417;
+@define-color theme_tooltip_bg_color #101417;
+@define-color theme_tooltip_fg_color #e0e3e8;
+@define-color bright_black #101417;
+@define-color black #8b9198;
 /* Base Window and Container Styling */
 window, 
 dialog, 

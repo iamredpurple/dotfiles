@@ -1,6 +1,6 @@
-@define-color foreground #f1dedd;
-@define-color blue #ffb3ae;
-@define-color bg #1a1111;
+@define-color foreground #e0e3e8;
+@define-color blue #95cdf7;
+@define-color bg #101417;
 @define-color background alpha(@bg, 0.95);
 
 #custom-arch {

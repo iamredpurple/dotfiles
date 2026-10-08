@@ -1,11 +1,11 @@
 [urgency_normal]
-background = "#1a1111"
-foreground = "#f1dedd"
-frame_color = "#f1dedd"
+background = "#101417"
+foreground = "#e0e3e8"
+frame_color = "#e0e3e8"
 
 [urgency_critical]
-background = "#1a1111"
-foreground = "#f1dedd"
+background = "#101417"
+foreground = "#e0e3e8"
 frame_color = "#ffb4ab"
 
 [global]

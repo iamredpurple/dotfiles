@@ -22,14 +22,20 @@ hl.config({
 	},
 })
 
-hl.window_rule({
-	match = { class = "^(chromasdf.*)$" },
-	no_blur = true,
-	opaque = true,
-})
+-- hl.window_rule({
+-- 	match = { class = "^(chrom.*)$" },
+-- 	no_blur = true,
+-- 	opaque = true,
+-- })
 
 hl.layer_rule({
 	match = { namespace = "waybar" },
+	blur = true,
+	ignore_alpha = 0.1,
+})
+
+hl.layer_rule({
+	match = { class = "^(org.gnome.Nautilus)$" },
 	blur = true,
 	ignore_alpha = 0.1,
 })

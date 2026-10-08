@@ -112,6 +112,9 @@ qt5-svg
 qt5-wayland
 qt6-wayland
 
+# --- Video Editor --- (can install manually if not installed)
+kdenlive
+
 # --- fonts ---
 noto-fonts
 noto-fonts-emoji

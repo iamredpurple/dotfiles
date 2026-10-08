@@ -40,6 +40,9 @@ else
   gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 fi
 
+# Qt / KDE theming (kdenlive + all KDE apps, Qt5 & Qt6)
+$HOME/.local/bin/qt-theme-switch "$TARGET_THEME"
+
 #for keyboard lighting
 $HOME/.local/bin/keyboard
 
